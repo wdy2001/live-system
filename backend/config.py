@@ -14,13 +14,17 @@ class Config:
     DB_USER = os.getenv("DB_USER", "root")
     DB_PASSWORD = os.getenv("DB_PASSWORD", "")
     DB_NAME = os.getenv("DB_NAME", "life_system")
+    USE_SQLITE = os.getenv("USE_SQLITE", "false").lower() == "true"
 
-    SQLALCHEMY_DATABASE_URI = (
-        f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-        "?charset=utf8mb4"
-    )
+    if USE_SQLITE:
+        SQLALCHEMY_DATABASE_URI = "sqlite:///life_system.db"
+    else:
+        SQLALCHEMY_DATABASE_URI = (
+            f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+            "?charset=utf8mb4"
+        )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_ENGINE_OPTIONS = {"pool_pre_ping": True}
+    SQLALCHEMY_ENGINE_OPTIONS = {"pool_pre_ping": True} if not USE_SQLITE else {}
 
     JWT_ACCESS_TOKEN_EXPIRES = 86400 * 7  # 7 天
 
