@@ -49,3 +49,7 @@ backend/.env
 
 # IDE 内部文档
 .trae/
+
+# 临时测试文件
+backend/test_api.py
+backend/test_deep.py

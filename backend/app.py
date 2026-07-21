@@ -2,7 +2,6 @@
 import os
 from flask import Flask, jsonify
 from flask_cors import CORS
-from flask_jwt_extended import JWTManager
 
 from config import config_map
 from extensions import db, jwt
