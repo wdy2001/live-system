@@ -1,6 +1,6 @@
 """生活缴费系统 - Flask 应用入口"""
 import os
-from flask import Flask, jsonify
+from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 
 from config import config_map
@@ -38,6 +38,19 @@ def create_app(config_name=None):
     @app.errorhandler(500)
     def server_error(e):
         return jsonify(msg="服务器内部错误"), 500
+
+    # 静态文件服务（前端构建产物）
+    @app.get("/")
+    def index():
+        return send_from_directory("../dist", "index.html")
+
+    @app.get("/assets/<path:path>")
+    def assets(path):
+        return send_from_directory("../dist/assets", path)
+
+    @app.get("/favicon.svg")
+    def favicon():
+        return send_from_directory("../public", "favicon.svg")
 
     return app
 
