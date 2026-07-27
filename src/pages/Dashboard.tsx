@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  Wallet, ReceiptText, Gauge, Wrench, ArrowRight, Zap, Droplets, Flame,
+  Wallet, ReceiptText, Gauge, Wrench, ArrowRight,
 } from "lucide-react";
 import api from "@/lib/api";
 import type { Dashboard as DashboardData, Bill } from "@/types";

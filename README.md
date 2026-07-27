@@ -50,30 +50,48 @@
 
 ## 快速开始
 
-### 1. 准备 MySQL
+### 方式一：使用 SQLite（快速体验，无需 MySQL）
+
+适合快速体验和开发测试，无需安装 MySQL。
 
 ```bash
-# 创建数据库与用户
+# 1. 启动后端
+cd backend
+pip install -r requirements.txt
+cp .env.example .env
+# 编辑 .env，将 USE_SQLITE 改为 true
+sed -i 's/USE_SQLITE=false/USE_SQLITE=true/' .env   # Linux/macOS
+# Windows 用户请手动编辑 .env 文件
+python seed.py          # 建表 + 写入演示数据
+python app.py           # 启动于 http://localhost:5000
+```
+
+```bash
+# 2. 启动前端（新开一个终端）
+npm install
+npm run dev             # 启动于 http://localhost:5173
+```
+
+### 方式二：使用 MySQL（生产环境推荐）
+
+```bash
+# 1. 准备 MySQL
 mysql -u root -e "CREATE DATABASE IF NOT EXISTS life_system DEFAULT CHARSET utf8mb4;"
 mysql -u root -e "CREATE USER 'life_app'@'localhost' IDENTIFIED BY 'life_pass_2026'; \
                   GRANT ALL PRIVILEGES ON life_system.* TO 'life_app'@'localhost'; FLUSH PRIVILEGES;"
-```
 
-### 2. 启动后端
-
-```bash
+# 2. 启动后端
 cd backend
 pip install -r requirements.txt
-cp .env.example .env          # 按需修改数据库配置
-python seed.py                # 建表 + 写入演示数据
-python app.py                 # 启动于 http://localhost:5000
+cp .env.example .env     # 按需修改数据库配置
+python seed.py           # 建表 + 写入演示数据
+python app.py            # 启动于 http://localhost:5000
 ```
 
-### 3. 启动前端
-
 ```bash
+# 3. 启动前端（新开一个终端）
 npm install
-npm run dev                   # 启动于 http://localhost:5173
+npm run dev              # 启动于 http://localhost:5173
 ```
 
 打开 http://localhost:5173 即可使用。

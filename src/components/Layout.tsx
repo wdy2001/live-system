@@ -2,7 +2,7 @@ import { useState, type ReactNode } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, Wallet, ReceiptText, ScrollText, Wrench,
-  LogOut, Menu, X, Leaf,
+  LogOut, Menu, Leaf,
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import { cn } from "@/lib/utils";
