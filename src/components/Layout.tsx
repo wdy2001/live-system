@@ -1,21 +1,21 @@
-import { useState, type ReactNode } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
-  LayoutDashboard, Wallet, ReceiptText, ScrollText, Wrench,
+  LayoutDashboard, Wallet, ReceiptText, Gauge, Wrench,
   LogOut, Menu, Leaf,
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import { cn } from "@/lib/utils";
 
 const NAV = [
-  { to: "/", label: "工作台", icon: LayoutDashboard, end: true },
+  { to: "/dashboard", label: "工作台", icon: LayoutDashboard, end: true },
   { to: "/payment", label: "缴费中心", icon: Wallet },
   { to: "/records", label: "缴费记录", icon: ReceiptText },
-  { to: "/rules", label: "计费规则", icon: ScrollText },
+  { to: "/rules", label: "计费规则", icon: Gauge },
   { to: "/repair", label: "故障报修", icon: Wrench },
 ];
 
-export default function Layout({ children }: { children: ReactNode }) {
+export default function Layout() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -27,7 +27,6 @@ export default function Layout({ children }: { children: ReactNode }) {
 
   const SidebarContent = (
     <div className="flex h-full flex-col">
-      {/* 品牌 */}
       <div className="flex items-center gap-3 px-6 py-7">
         <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-forest-700 text-cream shadow-card">
           <Leaf className="h-6 w-6" />
@@ -38,7 +37,6 @@ export default function Layout({ children }: { children: ReactNode }) {
         </div>
       </div>
 
-      {/* 导航 */}
       <nav className="flex-1 space-y-1 px-3">
         {NAV.map((item) => (
           <NavLink
@@ -61,9 +59,8 @@ export default function Layout({ children }: { children: ReactNode }) {
         ))}
       </nav>
 
-      {/* 用户区 */}
       <div className="border-t border-forest-50 p-4">
-        <div className="flex items-center gap-3 rounded-xl bg-forest-50/60 p-3">
+        <div className="mb-3 flex items-center gap-3 rounded-xl bg-forest-50/60 p-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-forest-700 font-serif font-bold text-cream">
             {user?.real_name?.[0] ?? "U"}
           </div>
@@ -71,26 +68,24 @@ export default function Layout({ children }: { children: ReactNode }) {
             <p className="truncate text-sm font-medium text-ink">{user?.real_name}</p>
             <p className="truncate text-xs text-ink-muted">@{user?.username}</p>
           </div>
-          <button
-            onClick={handleLogout}
-            title="退出登录"
-            className="rounded-lg p-2 text-ink-muted transition hover:bg-white hover:text-clay-500"
-          >
-            <LogOut className="h-4 w-4" />
-          </button>
         </div>
+        <button
+          onClick={handleLogout}
+          className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-ink-muted transition-all hover:bg-clay-50 hover:text-clay-600"
+        >
+          <LogOut className="h-5 w-5 shrink-0" />
+          <span>退出登录</span>
+        </button>
       </div>
     </div>
   );
 
   return (
     <div className="min-h-screen bg-cream">
-      {/* 桌面侧边栏 */}
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-forest-50 bg-white/80 backdrop-blur lg:block">
         {SidebarContent}
       </aside>
 
-      {/* 移动端抽屉 */}
       {mobileOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
           <div className="absolute inset-0 bg-ink/40" onClick={() => setMobileOpen(false)} />
@@ -100,9 +95,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         </div>
       )}
 
-      {/* 主区域 */}
       <div className="lg:pl-64">
-        {/* 移动端顶栏 */}
         <header className="sticky top-0 z-20 flex items-center justify-between border-b border-forest-50 bg-cream/90 px-4 py-3 backdrop-blur lg:hidden">
           <div className="flex items-center gap-2">
             <Leaf className="h-5 w-5 text-forest-700" />
@@ -113,7 +106,9 @@ export default function Layout({ children }: { children: ReactNode }) {
           </button>
         </header>
 
-        <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-10 lg:py-10">{children}</main>
+        <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
+          <Outlet />
+        </main>
       </div>
     </div>
   );
@@ -121,7 +116,7 @@ export default function Layout({ children }: { children: ReactNode }) {
 
 export function PageHeader({
   title, subtitle, action,
-}: { title: string; subtitle?: string; action?: ReactNode }) {
+}: { title: string; subtitle?: string; action?: React.ReactNode }) {
   return (
     <div className="mb-6 flex flex-wrap items-end justify-between gap-4 animate-fade-up">
       <div>

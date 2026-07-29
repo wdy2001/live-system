@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "@/store/auth";
 import Layout from "@/components/Layout";
 import Login from "@/pages/Login";
@@ -10,7 +10,7 @@ import Records from "@/pages/Records";
 import Rules from "@/pages/Rules";
 import Repair from "@/pages/Repair";
 
-function Protected({ children }: { children: React.ReactNode }) {
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuthStore();
   const location = useLocation();
 
@@ -29,35 +29,51 @@ function Protected({ children }: { children: React.ReactNode }) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  return <Layout>{children}</Layout>;
+  return <>{children}</>;
 }
 
 function PublicOnly({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuthStore();
   if (loading) return null;
-  if (user) return <Navigate to="/" replace />;
+  if (user) return <Navigate to="/dashboard" replace />;
   return <>{children}</>;
 }
 
+function NotFound() {
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center bg-cream p-8 text-center">
+      <h1 className="mb-4 text-6xl font-bold text-forest-700">404</h1>
+      <p className="mb-8 text-lg text-ink-soft">页面不存在或已被移除</p>
+      <button
+        onClick={() => (window.location.href = "/dashboard")}
+        className="btn-primary"
+      >
+        返回首页
+      </button>
+    </div>
+  );
+}
+
 export default function App() {
-  const init = useAuthStore((s) => s.init);
+  const initialize = useAuthStore((s) => s.initialize);
 
   useEffect(() => {
-    init();
-  }, [init]);
+    initialize();
+  }, [initialize]);
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/login" element={<PublicOnly><Login /></PublicOnly>} />
-        <Route path="/register" element={<PublicOnly><Register /></PublicOnly>} />
-        <Route path="/" element={<Protected><Dashboard /></Protected>} />
-        <Route path="/payment" element={<Protected><Payment /></Protected>} />
-        <Route path="/records" element={<Protected><Records /></Protected>} />
-        <Route path="/rules" element={<Protected><Rules /></Protected>} />
-        <Route path="/repair" element={<Protected><Repair /></Protected>} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Router>
+    <Routes>
+      <Route path="/login" element={<PublicOnly><Login /></PublicOnly>} />
+      <Route path="/register" element={<PublicOnly><Register /></PublicOnly>} />
+      <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+        <Route index element={<Navigate to="/dashboard" replace />} />
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="payment" element={<Payment />} />
+        <Route path="records" element={<Records />} />
+        <Route path="rules" element={<Rules />} />
+        <Route path="repair" element={<Repair />} />
+      </Route>
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 }

@@ -10,10 +10,16 @@ import { cn } from "@/lib/utils";
 export default function Rules() {
   const [rules, setRules] = useState<BillTypeRule[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     api.get("/rules")
-      .then((r) => setRules(r.data.rules))
+      .then((r) => setRules(r.data.rules || []))
+      .catch((e) => {
+        console.error("Failed to load rules:", e);
+        setError("加载规则失败");
+        setRules([]);
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -37,6 +43,13 @@ export default function Rules() {
           </p>
         </div>
       </div>
+
+      {/* 错误提示 */}
+      {error && !loading && (
+        <div className="card mb-6 border-clay-100 bg-clay-50/50">
+          <p className="text-sm text-clay-600">{error}，请稍后重试</p>
+        </div>
+      )}
 
       {/* 三栏阶梯卡片 */}
       {loading ? (

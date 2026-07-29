@@ -33,8 +33,8 @@ export default function Records() {
   };
 
   // 统计
-  const paidTotal = bills.filter((b) => b.status === "paid").reduce((s, b) => s + b.amount, 0);
-  const unpaidTotal = bills.filter((b) => b.status === "unpaid").reduce((s, b) => s + b.amount, 0);
+  const paidTotal = bills.reduce((s, b) => b.status === "paid" ? s + b.amount : s, 0);
+  const unpaidTotal = bills.reduce((s, b) => b.status === "unpaid" ? s + b.amount : s, 0);
 
   return (
     <>

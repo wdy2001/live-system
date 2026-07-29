@@ -18,6 +18,22 @@ def create_app(config_name=None):
     jwt.init_app(app)
     CORS(app, supports_credentials=True)
 
+    @jwt.unauthorized_loader
+    def _unauthorized(_callback):
+        return jsonify(msg="缺少访问凭证"), 401
+
+    @jwt.invalid_token_loader
+    def _invalid_token(_callback):
+        return jsonify(msg="访问凭证无效"), 401
+
+    @jwt.expired_token_loader
+    def _expired_token(_jwt_header, _jwt_payload):
+        return jsonify(msg="访问凭证已过期"), 401
+
+    @jwt.revoked_token_loader
+    def _revoked_token(_jwt_header, _jwt_payload):
+        return jsonify(msg="访问凭证已被吊销"), 401
+
     # 路由注册
     register_routes(app)
 

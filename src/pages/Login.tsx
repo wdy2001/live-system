@@ -13,7 +13,7 @@ export default function Login() {
 
   const submit = async () => {
     await login(username, password);
-    navigate("/");
+    navigate("/dashboard");
   };
 
   return (

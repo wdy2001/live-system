@@ -4,6 +4,7 @@ import {
 } from "recharts";
 import { UTILITY_META } from "@/lib/constants";
 import type { UtilityType } from "@/types";
+import { BarChart3 } from "lucide-react";
 
 interface TrendItem {
   period: string;
@@ -12,13 +13,24 @@ interface TrendItem {
 
 const COLORS: Record<UtilityType, string> = {
   electricity: "#D97706",
-  water: "#0E7490",
-  gas: "#B45309",
+  water: "#0891B2",
+  gas: "#EA580C",
 };
 
 export default function UsageChart({ data }: { data: TrendItem[] }) {
+  if (!data || data.length === 0) {
+    return (
+      <div className="flex h-[280px] flex-col items-center justify-center text-center">
+        <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-forest-50">
+          <BarChart3 className="h-7 w-7 text-forest-400" />
+        </div>
+        <p className="text-sm text-ink-muted">暂无用量数据</p>
+      </div>
+    );
+  }
+
   const chartData = data.map((d) => ({
-    period: d.period.slice(5), // MM
+    period: d.period.slice(5),
     电费: Number(d.usage.electricity.toFixed(1)),
     水费: Number(d.usage.water.toFixed(1)),
     燃气: Number(d.usage.gas.toFixed(1)),

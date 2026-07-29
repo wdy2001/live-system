@@ -51,5 +51,6 @@ backend/.env
 .trae/
 
 # 临时测试文件
-backend/test_api.py
-backend/test_deep.py
+backend/test_*.py
+!backend/tests/
+!backend/test_*.pyc

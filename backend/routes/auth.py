@@ -1,10 +1,11 @@
 """认证路由：注册 / 登录 / 当前用户"""
+from datetime import datetime
 from flask import Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 
 from extensions import db
-from models import User
+from models import User, Household, Meter
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -32,6 +33,32 @@ def register():
         role="user",
     )
     db.session.add(user)
+    db.session.flush()
+
+    date_str = datetime.now().strftime("%Y%m%d")
+    household = Household(
+        user_id=user.id,
+        household_no=f"HH{date_str}{user.id}",
+        address="默认地址（请在户号管理中完善）",
+    )
+    db.session.add(household)
+    db.session.flush()
+
+    user_id_padded = str(user.id).zfill(6)
+    meter_types = [
+        ("electricity", f"EL-{user_id_padded}"),
+        ("water", f"WT-{user_id_padded}"),
+        ("gas", f"GS-{user_id_padded}"),
+    ]
+    for mtype, mno in meter_types:
+        meter = Meter(
+            household_id=household.id,
+            type=mtype,
+            meter_no=mno,
+            current_reading=0,
+        )
+        db.session.add(meter)
+
     db.session.commit()
 
     token = create_access_token(identity=str(user.id))

@@ -16,21 +16,21 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
-    "strict": false,
+    "strict": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": false,
     "noUncheckedSideEffectImports": false,
     "forceConsistentCasingInFileNames": false,
-    "baseUrl": "./",
+    "baseUrl": ".",
     "paths": {
       "@/*": [
         "./src/*"
       ]
-    }
+    },
+    "types": ["node"]
   },
   "include": [
-    "src",
-    "api"
+    "src"
   ]
 }

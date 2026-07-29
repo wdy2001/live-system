@@ -15,7 +15,7 @@ export default function Register() {
 
   const submit = async () => {
     await register({ username, password, real_name: realName, phone });
-    navigate("/");
+    navigate("/dashboard");
   };
 
   return (

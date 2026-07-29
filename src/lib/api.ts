@@ -5,7 +5,6 @@ const api = axios.create({
   timeout: 15000,
 });
 
-// 请求拦截：附带 Token
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("life_token");
   if (token) {
@@ -14,7 +13,6 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// 响应拦截：统一错误处理
 api.interceptors.response.use(
   (res) => res,
   (error) => {
