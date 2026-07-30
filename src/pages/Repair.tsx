@@ -72,7 +72,7 @@ export default function Repair() {
             {/* 报修类型 */}
             <div className="mb-4">
               <label className="label">报修类型</label>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {REPAIR_TYPE_OPTIONS.map((opt) => {
                   const active = type === opt.value;
                   const Icon = opt.icon;
