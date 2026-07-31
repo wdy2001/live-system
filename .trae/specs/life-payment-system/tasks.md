@@ -121,7 +121,9 @@
 
 ## [x] Task 11: 前端计费规则与报修页面（已包含在上一项合并完成）
 
-## [/] Task 12: 全链路联调补充、README 完善、测试修正
+## [x] Task 12: 全链路联调补充、README 完善、测试修正
+
+## [x] Task 13: GitHub 仓库准备与推送（本地 Git 初始化完成）
 - **Priority**: high
 - **Depends On**: Task 1
 - **Description**: 
