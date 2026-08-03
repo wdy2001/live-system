@@ -48,9 +48,9 @@ def seed():
         db.session.commit()
 
         meters = [
-            Meter(household_id=h1.id, type="electricity", meter_no="EL-0001", current_reading=3120),
-            Meter(household_id=h1.id, type="water", meter_no="WT-0001", current_reading=486),
-            Meter(household_id=h1.id, type="gas", meter_no="GS-0001", current_reading=215),
+            Meter(household_id=h1.id, type="electricity", meter_no="EL-0001", current_reading=3380),
+            Meter(household_id=h1.id, type="water", meter_no="WT-0001", current_reading=525),
+            Meter(household_id=h1.id, type="gas", meter_no="GS-0001", current_reading=285),
         ]
         db.session.add_all(meters)
         db.session.commit()
@@ -76,31 +76,31 @@ def seed():
         now = datetime.utcnow()
         bill_rows = [
             # period, type, prev, curr
-            ("2025-12", "electricity", 2580, 2680),
-            ("2025-12", "water", 430, 442),
-            ("2025-12", "gas", 180, 195),
-            ("2026-01", "electricity", 2680, 2805),
-            ("2026-01", "water", 442, 455),
-            ("2026-01", "gas", 195, 208),
-            ("2026-02", "electricity", 2805, 2920),
-            ("2026-02", "water", 455, 468),
-            ("2026-02", "gas", 208, 220),
-            ("2026-03", "electricity", 2920, 3020),
-            ("2026-03", "water", 468, 478),
-            ("2026-03", "gas", 220, 230),
-            ("2026-04", "electricity", 3020, 3080),
-            ("2026-04", "water", 478, 486),
-            ("2026-04", "gas", 230, 243),
-            ("2026-05", "electricity", 3080, 3120),
-            ("2026-05", "water", 486, 498),
-            ("2026-05", "gas", 243, 256),
+            ("2026-03", "electricity", 2805, 2920),
+            ("2026-03", "water", 455, 468),
+            ("2026-03", "gas", 208, 220),
+            ("2026-04", "electricity", 2920, 3020),
+            ("2026-04", "water", 468, 478),
+            ("2026-04", "gas", 220, 230),
+            ("2026-05", "electricity", 3020, 3080),
+            ("2026-05", "water", 478, 486),
+            ("2026-05", "gas", 230, 243),
+            ("2026-06", "electricity", 3080, 3170),
+            ("2026-06", "water", 486, 500),
+            ("2026-06", "gas", 243, 258),
+            ("2026-07", "electricity", 3170, 3290),
+            ("2026-07", "water", 500, 513),
+            ("2026-07", "gas", 258, 272),
+            ("2026-08", "electricity", 3290, 3380),
+            ("2026-08", "water", 513, 525),
+            ("2026-08", "gas", 272, 285),
         ]
         meter_map = {m.type: m for m in meters}
         for period, btype, prev, curr in bill_rows:
             usage = curr - prev
             amount = _calc(rules, btype, usage)
             # 近两个月未缴，更早的已缴
-            is_paid = period < "2026-04"
+            is_paid = period < "2026-07"
             bill = Bill(
                 household_id=h1.id,
                 meter_id=meter_map[btype].id,

@@ -35,6 +35,8 @@ backend/.env
 *.sqlite
 *.sqlite3
 *.db
+backend/life_system.db
+backend/instance/
 
 # 编辑器
 .vscode/*
@@ -46,9 +48,6 @@ backend/.env
 *.njsproj
 *.sln
 *.sw?
-
-# IDE 内部文档
-.trae/
 
 # 临时测试文件
 backend/test_api.py

@@ -35,6 +35,15 @@ def overview():
     unpaid_total = float(unpaid_rows[0] or 0)
     unpaid_count = int(unpaid_rows[1] or 0)
 
+    # 已缴总额与数量
+    paid_rows = (
+        Bill.query.filter(Bill.household_id.in_(household_ids), Bill.status == "paid")
+        .with_entities(func.sum(Bill.amount), func.count(Bill.id))
+        .first()
+    )
+    paid_total = float(paid_rows[0] or 0)
+    paid_count = int(paid_rows[1] or 0)
+
     # 本月用量
     this_period = datetime.utcnow().strftime("%Y-%m")
     month_bills = (
@@ -73,6 +82,8 @@ def overview():
     return jsonify(
         unpaid_total=unpaid_total,
         unpaid_count=unpaid_count,
+        paid_total=paid_total,
+        paid_count=paid_count,
         this_month_usage=this_month_usage,
         repair_stats=repair_stats,
         trends=trends,
