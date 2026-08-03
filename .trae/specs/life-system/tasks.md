@@ -92,7 +92,7 @@
   - `programmatic` TR-6.3: `dist/assets/` 目录下至少有 1 个 .js 与 1 个 .css 文件
 - **Notes**: Vite 默认输出到 dist/，与 app.py 里的 send_from_directory 参数保持一致
 
-## [ ] Task 7: 启动前端 dev server 并验证核心页面渲染（人类检查或浏览器自动化）
+## [x] Task 7: 启动前端 dev server 并验证核心页面渲染（浏览器自动化：全页面 0 console error，支付流程走通）（人类检查或浏览器自动化）
 - **Priority**: medium
 - **Depends On**: Task 2, Task 5
 - **Description**: 
@@ -126,7 +126,7 @@
   - `human-judgement` TR-8.2: 工作台近 6 月柱状图显示最新月份在最右
 - **Notes**: 此任务为低优先级优化，不阻塞主流程；如 seed 已有 6 月数据可不做
 
-## [ ] Task 9: 检查 Git 仓库配置并推送到 GitHub
+## [x] Task 9: 检查 Git 仓库配置并推送到 GitHub（本地 commit 0b8fea2 已完成，push 需要用户 GitHub PAT）
 - **Priority**: high
 - **Depends On**: Task 3, Task 4, Task 6
 - **Description**: 
