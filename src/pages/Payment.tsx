@@ -17,6 +17,7 @@ export default function Payment() {
   const [paying, setPaying] = useState<Bill | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<{ transaction_no: string; amount: number } | null>(null);
+  const [errorMsg, setErrorMsg] = useState("");
 
   const load = (t: UtilityType) => {
     setLoading(true);
@@ -30,12 +31,14 @@ export default function Payment() {
   const handlePay = async () => {
     if (!paying) return;
     setSubmitting(true);
+    setErrorMsg("");
     try {
       const { data } = await api.post(`/bills/${paying.id}/pay`, { method: "alipay" });
       setResult({ transaction_no: data.transaction_no, amount: data.bill.amount });
       setPaying(null);
-    } catch {
-      /* 错误由拦截器处理 */
+    } catch (err) {
+      const msg = (err as { response?: { data?: { msg?: string } } })?.response?.data?.msg || "支付失败，请重试";
+      setErrorMsg(msg);
     } finally {
       setSubmitting(false);
     }
@@ -141,8 +144,11 @@ export default function Payment() {
               <span className="font-serif text-2xl font-bold text-energy-600">{formatMoney(paying.amount)}</span>
             </div>
           </div>
+          {errorMsg && (
+            <p className="mb-4 rounded-lg bg-clay-50 px-3 py-2 text-sm text-clay-600">{errorMsg}</p>
+          )}
           <div className="flex gap-3">
-            <button onClick={() => setPaying(null)} className="btn-ghost flex-1 border border-forest-100">
+            <button onClick={() => { setPaying(null); setErrorMsg(""); }} className="btn-ghost flex-1 border border-forest-100">
               取消
             </button>
             <button onClick={handlePay} disabled={submitting} className="btn-primary flex-1">

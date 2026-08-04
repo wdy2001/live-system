@@ -23,6 +23,8 @@ api.interceptors.response.use(
       if (!window.location.pathname.startsWith("/login")) {
         window.location.href = "/login";
       }
+    } else if ([400, 403, 409, 500].includes(error.response?.status)) {
+      alert(error.response?.data?.msg || "请求失败");
     }
     return Promise.reject(error);
   },

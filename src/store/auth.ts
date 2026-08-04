@@ -36,15 +36,31 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   login: async (username, password) => {
-    const { data } = await api.post("/auth/login", { username, password });
-    localStorage.setItem("life_token", data.token);
-    set({ user: data.user });
+    try {
+      const { data } = await api.post("/auth/login", { username, password });
+      localStorage.setItem("life_token", data.token);
+      set({ user: data.user });
+    } catch (err) {
+      const msg = (err as { response?: { data?: { msg?: string } } })?.response?.data?.msg;
+      if (msg) {
+        (err as { message?: string }).message = msg;
+      }
+      throw err;
+    }
   },
 
   register: async (payload) => {
-    const { data } = await api.post("/auth/register", payload);
-    localStorage.setItem("life_token", data.token);
-    set({ user: data.user });
+    try {
+      const { data } = await api.post("/auth/register", payload);
+      localStorage.setItem("life_token", data.token);
+      set({ user: data.user });
+    } catch (err) {
+      const msg = (err as { response?: { data?: { msg?: string } } })?.response?.data?.msg;
+      if (msg) {
+        (err as { message?: string }).message = msg;
+      }
+      throw err;
+    }
   },
 
   logout: () => {

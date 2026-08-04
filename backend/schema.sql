@@ -56,7 +56,10 @@ CREATE TABLE IF NOT EXISTS bills (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     paid_at DATETIME NULL,
     FOREIGN KEY (household_id) REFERENCES households(id),
-    FOREIGN KEY (meter_id) REFERENCES meters(id)
+    FOREIGN KEY (meter_id) REFERENCES meters(id),
+    INDEX idx_bills_household_type_period (household_id, type, period),
+    INDEX idx_bills_status (status),
+    INDEX idx_bills_period (period)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS payments (
@@ -79,5 +82,6 @@ CREATE TABLE IF NOT EXISTS repair_requests (
     status ENUM('pending','processing','resolved') DEFAULT 'pending',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     resolved_at DATETIME NULL,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    INDEX idx_repair_requests_user_status (user_id, status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

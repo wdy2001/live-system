@@ -72,7 +72,8 @@ def pay_bill(bill_id):
     if bill.status == "paid":
         return jsonify(msg="该账单已支付"), 400
 
-    method = (request.get_json() or {}).get("method", "alipay")
+    data = request.get_json(silent=True) or {}
+    method = data.get("method", "alipay")
     payment = Payment(
         bill_id=bill.id,
         amount=bill.amount,
