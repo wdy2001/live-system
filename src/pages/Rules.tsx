@@ -116,20 +116,21 @@ export default function Rules() {
           />
           <Example
             icon={Droplets} meta={UTILITY_META.water}
-            usage={15} unit="吨"
+            usage={20} unit="吨"
             calc={[
-              { tier: 1, range: "0-12 吨", usage: 12, price: 3.5, subtotal: 42.0 },
-              { tier: 2, range: "13-15 吨", usage: 3, price: 4.6, subtotal: 13.8 },
+              { tier: 1, range: "0-15 吨", usage: 15, price: 3.5, subtotal: 52.5 },
+              { tier: 2, range: "16-20 吨", usage: 5, price: 4.8, subtotal: 24.0 },
             ]}
-            total={55.8}
+            total={76.5}
           />
           <Example
             icon={Flame} meta={UTILITY_META.gas}
             usage={45} unit="立方"
             calc={[
-              { tier: 1, range: "0-45 立方", usage: 45, price: 2.67, subtotal: 120.15 },
+              { tier: 1, range: "0-30 立方", usage: 30, price: 2.63, subtotal: 78.9 },
+              { tier: 2, range: "31-45 立方", usage: 15, price: 3.15, subtotal: 47.25 },
             ]}
-            total={120.15}
+            total={126.15}
           />
         </div>
       </div>

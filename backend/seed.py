@@ -58,16 +58,17 @@ def seed():
         # ---------- 计费规则（阶梯） ----------
         rules = [
             # 电价：三档
-            BillTypeRule(type="electricity", tier=1, min_usage=0, max_usage=180, unit_price=0.5880, description="第一档（年用电 0-180 度）"),
-            BillTypeRule(type="electricity", tier=2, min_usage=180, max_usage=400, unit_price=0.6380, description="第二档（年用电 181-400 度）"),
-            BillTypeRule(type="electricity", tier=3, min_usage=400, max_usage=None, unit_price=0.8880, description="第三档（年用电 400 度以上）"),
-            # 水价：两档
-            BillTypeRule(type="water", tier=1, min_usage=0, max_usage=12, unit_price=3.5000, description="第一档（月用水 0-12 吨）"),
-            BillTypeRule(type="water", tier=2, min_usage=12, max_usage=None, unit_price=4.6000, description="第二档（月用水 12 吨以上）"),
-            # 气价：两档
-            BillTypeRule(type="gas", tier=1, min_usage=0, max_usage=310, unit_price=2.6700, description="第一档（年用气 0-310 立方）"),
-            BillTypeRule(type="gas", tier=2, min_usage=310, max_usage=600, unit_price=2.9500, description="第二档（年用气 311-600 立方）"),
-            BillTypeRule(type="gas", tier=3, min_usage=600, max_usage=None, unit_price=3.5600, description="第三档（年用气 600 立方以上）"),
+            BillTypeRule(type="electricity", tier=1, min_usage=0, max_usage=180, unit_price=0.5880, description="第一档（月用电 0-180 度）"),
+            BillTypeRule(type="electricity", tier=2, min_usage=180, max_usage=400, unit_price=0.6380, description="第二档（月用电 181-400 度）"),
+            BillTypeRule(type="electricity", tier=3, min_usage=400, max_usage=None, unit_price=0.8880, description="第三档（月用电 400 度以上）"),
+            # 水价：三档
+            BillTypeRule(type="water", tier=1, min_usage=0, max_usage=15, unit_price=3.5000, description="第一档（月用水 0-15 吨）"),
+            BillTypeRule(type="water", tier=2, min_usage=15, max_usage=25, unit_price=4.8000, description="第二档（月用水 16-25 吨）"),
+            BillTypeRule(type="water", tier=3, min_usage=25, max_usage=None, unit_price=6.5000, description="第三档（月用水 25 吨以上）"),
+            # 气价：三档
+            BillTypeRule(type="gas", tier=1, min_usage=0, max_usage=30, unit_price=2.6300, description="第一档（月用气 0-30 立方）"),
+            BillTypeRule(type="gas", tier=2, min_usage=30, max_usage=50, unit_price=3.1500, description="第二档（月用气 31-50 立方）"),
+            BillTypeRule(type="gas", tier=3, min_usage=50, max_usage=None, unit_price=3.9500, description="第三档（月用气 50 立方以上）"),
         ]
         db.session.add_all(rules)
         db.session.commit()

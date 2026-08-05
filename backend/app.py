@@ -52,6 +52,16 @@ def create_app(config_name=None):
     def favicon():
         return send_from_directory("../public", "favicon.svg")
 
+    # SPA catch-all：除 /api/* 外，所有未命中的路由都返回 index.html，避免刷新时 404
+    @app.get("/<path:_path>")
+    def spa_catch_all(_path):
+        if _path.startswith("api/"):
+            return jsonify(msg="API 路径不存在"), 404
+        try:
+            return send_from_directory("../dist", "index.html")
+        except Exception:
+            return jsonify(msg="未找到页面"), 404
+
     return app
 
 

@@ -53,3 +53,5 @@ backend/.env
 # 临时测试文件
 backend/test_api.py
 backend/test_deep.py
+backend/test_smoke.py
+backend/test_spa.py
