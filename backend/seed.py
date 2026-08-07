@@ -48,9 +48,9 @@ def seed():
         db.session.commit()
 
         meters = [
-            Meter(household_id=h1.id, type="electricity", meter_no="EL-0001", current_reading=3120),
-            Meter(household_id=h1.id, type="water", meter_no="WT-0001", current_reading=486),
-            Meter(household_id=h1.id, type="gas", meter_no="GS-0001", current_reading=215),
+            Meter(household_id=h1.id, type="electricity", meter_no="EL-0001", current_reading=5680),
+            Meter(household_id=h1.id, type="water", meter_no="WT-0001", current_reading=738),
+            Meter(household_id=h1.id, type="gas", meter_no="GS-0001", current_reading=526),
         ]
         db.session.add_all(meters)
         db.session.commit()
@@ -72,35 +72,60 @@ def seed():
         db.session.add_all(rules)
         db.session.commit()
 
-        # ---------- 账单（近 6 个月 + 本月未缴） ----------
+        # ---------- 账单（近 12 个月，前 9 个月已缴，后 3 个月未缴） ----------
         now = datetime.utcnow()
         bill_rows = [
-            # period, type, prev, curr
-            ("2025-12", "electricity", 2580, 2680),
-            ("2025-12", "water", 430, 442),
-            ("2025-12", "gas", 180, 195),
-            ("2026-01", "electricity", 2680, 2805),
-            ("2026-01", "water", 442, 455),
-            ("2026-01", "gas", 195, 208),
-            ("2026-02", "electricity", 2805, 2920),
-            ("2026-02", "water", 455, 468),
-            ("2026-02", "gas", 208, 220),
-            ("2026-03", "electricity", 2920, 3020),
-            ("2026-03", "water", 468, 478),
-            ("2026-03", "gas", 220, 230),
-            ("2026-04", "electricity", 3020, 3080),
-            ("2026-04", "water", 478, 486),
-            ("2026-04", "gas", 230, 243),
-            ("2026-05", "electricity", 3080, 3120),
-            ("2026-05", "water", 486, 498),
-            ("2026-05", "gas", 243, 256),
+            ("2025-06", "electricity", 1820, 1930),
+            ("2025-06", "water", 302, 315),
+            ("2025-06", "gas", 95, 112),
+            ("2025-07", "electricity", 1930, 2080),
+            ("2025-07", "water", 315, 330),
+            ("2025-07", "gas", 112, 128),
+            ("2025-08", "electricity", 2080, 2260),
+            ("2025-08", "water", 330, 348),
+            ("2025-08", "gas", 128, 145),
+            ("2025-09", "electricity", 2260, 2410),
+            ("2025-09", "water", 348, 362),
+            ("2025-09", "gas", 145, 163),
+            ("2025-10", "electricity", 2410, 2560),
+            ("2025-10", "water", 362, 378),
+            ("2025-10", "gas", 163, 181),
+            ("2025-11", "electricity", 2560, 2700),
+            ("2025-11", "water", 378, 395),
+            ("2025-11", "gas", 181, 198),
+            ("2025-12", "electricity", 2700, 2850),
+            ("2025-12", "water", 395, 412),
+            ("2025-12", "gas", 198, 218),
+            ("2026-01", "electricity", 2850, 3020),
+            ("2026-01", "water", 412, 430),
+            ("2026-01", "gas", 218, 240),
+            ("2026-02", "electricity", 3020, 3190),
+            ("2026-02", "water", 430, 448),
+            ("2026-02", "gas", 240, 262),
+            ("2026-03", "electricity", 3190, 3360),
+            ("2026-03", "water", 448, 466),
+            ("2026-03", "gas", 262, 286),
+            ("2026-04", "electricity", 3360, 3500),
+            ("2026-04", "water", 466, 482),
+            ("2026-04", "gas", 286, 308),
+            ("2026-05", "electricity", 3500, 3680),
+            ("2026-05", "water", 482, 500),
+            ("2026-05", "gas", 308, 332),
+            ("2026-06", "electricity", 3680, 3900),
+            ("2026-06", "water", 500, 520),
+            ("2026-06", "gas", 332, 360),
+            ("2026-07", "electricity", 3900, 4200),
+            ("2026-07", "water", 520, 545),
+            ("2026-07", "gas", 360, 395),
+            ("2026-08", "electricity", 4200, 5680),
+            ("2026-08", "water", 545, 738),
+            ("2026-08", "gas", 395, 526),
         ]
         meter_map = {m.type: m for m in meters}
         for period, btype, prev, curr in bill_rows:
             usage = curr - prev
             amount = _calc(rules, btype, usage)
-            # 近两个月未缴，更早的已缴
-            is_paid = period < "2026-04"
+            is_paid = period < "2026-06"
             bill = Bill(
                 household_id=h1.id,
                 meter_id=meter_map[btype].id,
@@ -130,18 +155,41 @@ def seed():
             RepairRequest(
                 user_id=demo.id, type="electricity", description="客厅灯经常闪烁，疑似线路接触不良",
                 phone="13900001111", urgency="normal", status="resolved",
-                created_at=datetime.utcnow() - timedelta(days=20),
-                resolved_at=datetime.utcnow() - timedelta(days=15),
+                created_at=datetime.utcnow() - timedelta(days=90),
+                resolved_at=datetime.utcnow() - timedelta(days=87),
             ),
             RepairRequest(
                 user_id=demo.id, type="water", description="厨房水龙头漏水，关不紧",
+                phone="13900001111", urgency="normal", status="resolved",
+                created_at=datetime.utcnow() - timedelta(days=70),
+                resolved_at=datetime.utcnow() - timedelta(days=68),
+            ),
+            RepairRequest(
+                user_id=demo.id, type="gas", description="燃气灶打不着火，需要检修",
+                phone="13900001111", urgency="urgent", status="resolved",
+                created_at=datetime.utcnow() - timedelta(days=50),
+                resolved_at=datetime.utcnow() - timedelta(days=49),
+            ),
+            RepairRequest(
+                user_id=demo.id, type="electricity", description="空调插座没电，怀疑跳闸",
+                phone="13900001111", urgency="normal", status="resolved",
+                created_at=datetime.utcnow() - timedelta(days=35),
+                resolved_at=datetime.utcnow() - timedelta(days=34),
+            ),
+            RepairRequest(
+                user_id=demo.id, type="water", description="卫生间淋浴水压太小",
                 phone="13900001111", urgency="normal", status="processing",
                 created_at=datetime.utcnow() - timedelta(days=3),
             ),
             RepairRequest(
-                user_id=demo.id, type="gas", description="燃气灶打不着火，需要检修",
+                user_id=demo.id, type="gas", description="燃气热水器无法启动，显示错误代码E1",
                 phone="13900001111", urgency="urgent", status="pending",
                 created_at=datetime.utcnow() - timedelta(days=1),
+            ),
+            RepairRequest(
+                user_id=demo.id, type="other", description="入户门铃不响，需要检查线路",
+                phone="13900001111", urgency="normal", status="pending",
+                created_at=datetime.utcnow() - timedelta(hours=6),
             ),
         ]
         db.session.add_all(repairs)

@@ -40,6 +40,8 @@
 │   │   └── dashboard.py      # 工作台概览
 │   └── services/
 │       └── billing.py        # 阶梯计费算法
+├── public/                   # 静态资源（favicon 等）
+│   └── favicon.svg
 └── src/                      # React 前端
     ├── components/           # Layout / StatCard / TypeBadge / UsageChart ...
     ├── pages/                # Login / Register / Dashboard / Payment / Records / Rules / Repair

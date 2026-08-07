@@ -17,7 +17,9 @@ class Config:
     USE_SQLITE = os.getenv("USE_SQLITE", "false").lower() == "true"
 
     if USE_SQLITE:
-        SQLALCHEMY_DATABASE_URI = "sqlite:///life_system.db"
+        import os as _os
+        _db_path = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "life_system.db")
+        SQLALCHEMY_DATABASE_URI = f"sqlite:///{_db_path}"
     else:
         SQLALCHEMY_DATABASE_URI = (
             f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"

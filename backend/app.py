@@ -13,6 +13,12 @@ def create_app(config_name=None):
     config_name = config_name or os.getenv("FLASK_ENV", "development")
     app.config.from_object(config_map[config_name])
 
+    _BASE = os.path.dirname(os.path.abspath(__file__))
+    _DIST = os.path.abspath(os.path.join(_BASE, "..", "dist"))
+    _PUBLIC = os.path.abspath(os.path.join(_BASE, "..", "public"))
+
+    app.config["PROPAGATE_EXCEPTIONS"] = False
+
     # 扩展初始化
     db.init_app(app)
     jwt.init_app(app)
@@ -39,18 +45,24 @@ def create_app(config_name=None):
     def server_error(e):
         return jsonify(msg="服务器内部错误"), 500
 
+    @app.errorhandler(Exception)
+    def handle_exception(e):
+        import traceback
+        traceback.print_exc()
+        return jsonify(msg="服务器内部错误"), 500
+
     # 静态文件服务（前端构建产物）
     @app.get("/")
     def index():
-        return send_from_directory("../dist", "index.html")
+        return send_from_directory(_DIST, "index.html")
 
     @app.get("/assets/<path:path>")
     def assets(path):
-        return send_from_directory("../dist/assets", path)
+        return send_from_directory(os.path.join(_DIST, "assets"), path)
 
     @app.get("/favicon.svg")
     def favicon():
-        return send_from_directory("../public", "favicon.svg")
+        return send_from_directory(_PUBLIC, "favicon.svg")
 
     return app
 
