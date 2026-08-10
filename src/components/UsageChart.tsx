@@ -1,66 +1,85 @@
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  Legend, ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
 } from "recharts";
-import { UTILITY_META } from "@/lib/constants";
-import type { UtilityType } from "@/types";
 
-interface TrendItem {
+interface UsageData {
   period: string;
-  usage: Record<UtilityType, number>;
+  usage: {
+    electricity: number;
+    water: number;
+    gas: number;
+  };
 }
 
-const COLORS: Record<UtilityType, string> = {
-  electricity: "#D97706",
-  water: "#0E7490",
-  gas: "#B45309",
-};
+interface UsageChartProps {
+  data: UsageData[];
+}
 
-export default function UsageChart({ data }: { data: TrendItem[] }) {
+export default function UsageChart({ data }: UsageChartProps) {
   const chartData = data.map((d) => ({
-    period: d.period.slice(5), // MM
-    电费: Number(d.usage.electricity.toFixed(1)),
-    水费: Number(d.usage.water.toFixed(1)),
-    燃气: Number(d.usage.gas.toFixed(1)),
+    period: d.period,
+    electricity: d.usage.electricity,
+    water: d.usage.water,
+    gas: d.usage.gas,
   }));
 
   return (
-    <ResponsiveContainer width="100%" height={280}>
-      <BarChart data={chartData} barGap={4} barCategoryGap="22%">
-        <CartesianGrid strokeDasharray="3 3" stroke="#ECFDF3" vertical={false} />
+    <ResponsiveContainer width="100%" height={300}>
+      <BarChart data={chartData} barGap={2} barCategoryGap="20%">
+        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
         <XAxis
           dataKey="period"
-          tick={{ fontSize: 12, fill: "#6B7670" }}
-          axisLine={{ stroke: "#D1FAE0" }}
+          tick={{ fontSize: 12, fill: "#6b7280" }}
+          axisLine={{ stroke: "#e5e7eb" }}
           tickLine={false}
         />
         <YAxis
-          tick={{ fontSize: 12, fill: "#6B7670" }}
+          tick={{ fontSize: 12, fill: "#6b7280" }}
           axisLine={false}
           tickLine={false}
         />
         <Tooltip
           contentStyle={{
-            borderRadius: 12,
-            border: "1px solid #D1FAE0",
-            boxShadow: "0 8px 24px rgba(15,81,50,0.10)",
+            borderRadius: 8,
+            border: "1px solid #e5e7eb",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
             fontSize: 13,
           }}
-          cursor={{ fill: "#ECFDF3" }}
         />
         <Legend
+          verticalAlign="top"
+          align="right"
           iconType="circle"
-          wrapperStyle={{ fontSize: 12, paddingTop: 8 }}
+          wrapperStyle={{ fontSize: 12, paddingBottom: 16 }}
         />
-        {(["electricity", "water", "gas"] as UtilityType[]).map((t) => (
-          <Bar
-            key={t}
-            dataKey={UTILITY_META[t].label.replace("费", "")}
-            fill={COLORS[t]}
-            radius={[4, 4, 0, 0]}
-            maxBarSize={26}
-          />
-        ))}
+        <Bar
+          dataKey="electricity"
+          name="电"
+          fill="#F59E0B"
+          radius={[4, 4, 0, 0]}
+          maxBarSize={32}
+        />
+        <Bar
+          dataKey="water"
+          name="水"
+          fill="#3B82F6"
+          radius={[4, 4, 0, 0]}
+          maxBarSize={32}
+        />
+        <Bar
+          dataKey="gas"
+          name="气"
+          fill="#10B981"
+          radius={[4, 4, 0, 0]}
+          maxBarSize={32}
+        />
       </BarChart>
     </ResponsiveContainer>
   );

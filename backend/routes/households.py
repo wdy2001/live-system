@@ -19,6 +19,7 @@ def my_households():
     result = []
     for h in households:
         d = h.to_dict()
-        d["meters"] = [m.to_dict() for m in h.meters]
+        meters_sorted = sorted(h.meters, key=lambda m: m.type)
+        d["meters"] = [m.to_dict() for m in meters_sorted]
         result.append(d)
     return jsonify(households=result)

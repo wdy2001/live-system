@@ -27,14 +27,14 @@ def seed():
         # ---------- 用户 ----------
         admin = User(
             username="admin",
-            password_hash=generate_password_hash("admin123"),
+            password_hash="$pbkdf2$" + generate_password_hash("admin123", method="pbkdf2:sha256"),
             real_name="系统管理员",
             phone="13800000000",
             role="admin",
         )
         demo = User(
             username="demo",
-            password_hash=generate_password_hash("demo123"),
+            password_hash="$pbkdf2$" + generate_password_hash("demo123", method="pbkdf2:sha256"),
             real_name="张小明",
             phone="13900001111",
             role="user",

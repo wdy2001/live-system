@@ -1,4 +1,5 @@
 """故障报修路由"""
+import re
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
@@ -7,16 +8,21 @@ from models import User, RepairRequest
 
 repairs_bp = Blueprint("repairs", __name__)
 
+PHONE_REGEX = re.compile(r"^1[3-9]\d{9}$")
+VALID_TYPES = {"electricity", "water", "gas", "other"}
+VALID_URGENCIES = {"normal", "urgent"}
+VALID_STATUSES = {"pending", "processing", "resolved"}
+
 
 @repairs_bp.get("")
 @jwt_required()
 def list_repairs():
     uid = int(get_jwt_identity())
-    repairs = (
-        RepairRequest.query.filter_by(user_id=uid)
-        .order_by(RepairRequest.created_at.desc())
-        .all()
-    )
+    status = request.args.get("status")
+    query = RepairRequest.query.filter_by(user_id=uid)
+    if status and status in VALID_STATUSES:
+        query = query.filter_by(status=status)
+    repairs = query.order_by(RepairRequest.created_at.desc()).all()
     return jsonify(repairs=[r.to_dict() for r in repairs])
 
 
@@ -34,13 +40,17 @@ def create_repair():
     phone = (data.get("phone") or "").strip()
     urgency = data.get("urgency", "normal")
 
-    if rtype not in ("electricity", "water", "gas", "other"):
+    if rtype not in VALID_TYPES:
         return jsonify(msg="报修类型无效"), 400
-    if not description:
-        return jsonify(msg="请填写故障描述"), 400
-    if not phone:
-        return jsonify(msg="请填写联系电话"), 400
-    if urgency not in ("normal", "urgent"):
+
+    desc_len = len(description)
+    if desc_len < 10 or desc_len > 500:
+        return jsonify(msg="故障描述长度需为 10-500 字"), 400
+
+    if not PHONE_REGEX.match(phone):
+        return jsonify(msg="联系电话格式错误"), 400
+
+    if urgency not in VALID_URGENCIES:
         urgency = "normal"
 
     repair = RepairRequest(

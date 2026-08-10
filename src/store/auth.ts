@@ -1,54 +1,53 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import type { User } from "@/types";
 import api from "@/lib/api";
 
 interface AuthState {
+  token: string | null;
   user: User | null;
-  loading: boolean;
-  init: () => Promise<void>;
-  login: (username: string, password: string) => Promise<void>;
-  register: (payload: {
+  login: (payload: { token: string; user: User }) => void;
+  logout: () => void;
+  register: (payload: { token: string; user: User }) => void;
+  loginApi: (username: string, password: string) => Promise<void>;
+  registerApi: (payload: {
     username: string;
     password: string;
     real_name: string;
     phone: string;
   }) => Promise<void>;
-  logout: () => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
-  loading: true,
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({
+      token: null,
+      user: null,
 
-  init: async () => {
-    const token = localStorage.getItem("life_token");
-    if (!token) {
-      set({ loading: false, user: null });
-      return;
-    }
-    try {
-      const { data } = await api.get("/auth/me");
-      set({ user: data.user, loading: false });
-    } catch {
-      localStorage.removeItem("life_token");
-      set({ user: null, loading: false });
-    }
-  },
+      login: ({ token, user }) => {
+        set({ token, user });
+      },
 
-  login: async (username, password) => {
-    const { data } = await api.post("/auth/login", { username, password });
-    localStorage.setItem("life_token", data.token);
-    set({ user: data.user });
-  },
+      logout: () => {
+        set({ token: null, user: null });
+      },
 
-  register: async (payload) => {
-    const { data } = await api.post("/auth/register", payload);
-    localStorage.setItem("life_token", data.token);
-    set({ user: data.user });
-  },
+      register: ({ token, user }) => {
+        set({ token, user });
+      },
 
-  logout: () => {
-    localStorage.removeItem("life_token");
-    set({ user: null });
-  },
-}));
+      loginApi: async (username, password) => {
+        const { data } = await api.post("/auth/login", { username, password });
+        set({ token: data.token, user: data.user });
+      },
+
+      registerApi: async (payload) => {
+        const { data } = await api.post("/auth/register", payload);
+        set({ token: data.token, user: data.user });
+      },
+    }),
+    {
+      name: "auth-storage",
+    },
+  ),
+);

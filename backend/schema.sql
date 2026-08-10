@@ -20,7 +20,8 @@ CREATE TABLE IF NOT EXISTS households (
     household_no VARCHAR(32) NOT NULL UNIQUE,
     address VARCHAR(255),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    INDEX idx_household_no (household_no)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS meters (
@@ -29,7 +30,8 @@ CREATE TABLE IF NOT EXISTS meters (
     type ENUM('electricity','water','gas') NOT NULL,
     meter_no VARCHAR(32) NOT NULL,
     current_reading DECIMAL(12,2) DEFAULT 0,
-    FOREIGN KEY (household_id) REFERENCES households(id)
+    FOREIGN KEY (household_id) REFERENCES households(id),
+    INDEX idx_meter_no (meter_no)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS bill_type_rules (
@@ -56,7 +58,10 @@ CREATE TABLE IF NOT EXISTS bills (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     paid_at DATETIME NULL,
     FOREIGN KEY (household_id) REFERENCES households(id),
-    FOREIGN KEY (meter_id) REFERENCES meters(id)
+    FOREIGN KEY (meter_id) REFERENCES meters(id),
+    INDEX idx_bills_period (period),
+    INDEX idx_bills_type (type),
+    INDEX idx_bills_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS payments (
@@ -79,5 +84,6 @@ CREATE TABLE IF NOT EXISTS repair_requests (
     status ENUM('pending','processing','resolved') DEFAULT 'pending',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     resolved_at DATETIME NULL,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    INDEX idx_repairs_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

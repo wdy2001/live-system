@@ -31,9 +31,10 @@ export interface Household {
   address: string;
   user_id: number;
   meters?: Meter[];
+  created_at?: string;
 }
 
-export interface BillTypeRule {
+export interface Rule {
   id: number;
   type: UtilityType;
   tier: number;
@@ -42,6 +43,8 @@ export interface BillTypeRule {
   unit_price: number;
   description: string;
 }
+
+export type BillTypeRule = Rule;
 
 export interface BillBreakdown {
   tier: number;
@@ -81,7 +84,7 @@ export interface Payment {
   paid_at: string;
 }
 
-export interface RepairRequest {
+export interface Repair {
   id: number;
   user_id: number;
   type: RepairType;
@@ -93,11 +96,24 @@ export interface RepairRequest {
   resolved_at: string | null;
 }
 
-export interface Dashboard {
+export type RepairRequest = Repair;
+
+export interface DashboardResponse {
   unpaid_total: number;
   unpaid_count: number;
   this_month_usage: Record<UtilityType, number>;
   repair_stats: Record<"pending" | "processing" | "resolved", number>;
   trends: Array<{ period: string; usage: Record<UtilityType, number> }>;
   households: Household[];
+}
+
+export type Dashboard = DashboardResponse;
+
+export interface RulesResponse {
+  rules: BillTypeRule[];
+  example: {
+    usage: number;
+    amount: number;
+    breakdown: BillBreakdown[];
+  };
 }

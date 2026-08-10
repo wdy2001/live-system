@@ -21,12 +21,24 @@ def _user_household_ids(uid):
 def list_bills():
     uid = int(get_jwt_identity())
     household_ids = _user_household_ids(uid)
-    if not household_ids:
-        return jsonify(bills=[])
 
     btype = request.args.get("type")
     status = request.args.get("status")
     period = request.args.get("period")
+    try:
+        page = int(request.args.get("page", 1))
+        if page < 1:
+            page = 1
+    except (TypeError, ValueError):
+        page = 1
+    try:
+        per_page = int(request.args.get("per_page", 10))
+        if per_page < 1:
+            per_page = 10
+        if per_page > 50:
+            per_page = 50
+    except (TypeError, ValueError):
+        per_page = 10
 
     q = Bill.query.filter(Bill.household_id.in_(household_ids))
     if btype in ("electricity", "water", "gas"):
@@ -36,8 +48,16 @@ def list_bills():
     if period:
         q = q.filter(Bill.period == period)
 
-    bills = q.order_by(Bill.period.desc(), Bill.id.desc()).all()
-    return jsonify(bills=[b.to_dict() for b in bills])
+    q = q.order_by(Bill.period.desc(), Bill.id.desc())
+    total = q.count()
+    bills = q.offset((page - 1) * per_page).limit(per_page).all()
+    result = []
+    for b in bills:
+        d = b.to_dict()
+        d["household"] = b.household.to_dict()
+        d["meter"] = b.meter.to_dict()
+        result.append(d)
+    return jsonify(bills=result, total=total, page=page, per_page=per_page)
 
 
 @bills_bp.get("/<int:bill_id>")
@@ -51,8 +71,9 @@ def bill_detail(bill_id):
         return jsonify(msg="无权访问该账单"), 403
 
     result = bill.to_dict()
-    breakdown = calculate_tiered_amount(bill.type, float(bill.usage_amount))
-    result["breakdown"] = breakdown["breakdown"]
+    calc_result = calculate_tiered_amount(bill.type, float(bill.usage_amount))
+    breakdown = calc_result["breakdown"]
+    result["breakdown"] = breakdown
     result["household"] = bill.household.to_dict()
     result["meter"] = bill.meter.to_dict()
     if bill.payment:
@@ -77,19 +98,16 @@ def pay_bill(bill_id):
         bill_id=bill.id,
         amount=bill.amount,
         method=method,
-        transaction_no=f"PAY{uuid.uuid4().hex[:16].upper()}",
+        transaction_no=f"PAY{uuid.uuid4().hex.upper()}",
     )
     bill.status = "paid"
     bill.paid_at = datetime.utcnow()
-    # 更新表当前读数
     bill.meter.current_reading = bill.current_reading
 
     db.session.add(payment)
     db.session.commit()
 
     return jsonify(
-        payment_id=payment.id,
-        transaction_no=payment.transaction_no,
-        paid_at=payment.paid_at.isoformat(),
+        payment=payment.to_dict(),
         bill=bill.to_dict(),
     )

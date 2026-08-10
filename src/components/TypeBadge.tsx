@@ -1,21 +1,28 @@
 import { cn } from "@/lib/utils";
-import { UTILITY_META } from "@/lib/constants";
-import type { UtilityType } from "@/types";
 
-export default function TypeBadge({
-  type, size = "md",
-}: { type: UtilityType; size?: "sm" | "md" }) {
-  const meta = UTILITY_META[type];
-  const Icon = meta.icon;
+type BadgeType = "electricity" | "water" | "gas" | "other";
+
+interface TypeBadgeProps {
+  type: BadgeType;
+}
+
+const TYPE_STYLES: Record<BadgeType, { className: string; label: string }> = {
+  electricity: { className: "bg-yellow-100 text-yellow-700", label: "电费" },
+  water: { className: "bg-blue-100 text-blue-700", label: "水费" },
+  gas: { className: "bg-green-100 text-green-700", label: "燃气费" },
+  other: { className: "bg-gray-100 text-gray-700", label: "其他" },
+};
+
+export default function TypeBadge({ type }: TypeBadgeProps) {
+  const meta = TYPE_STYLES[type];
+
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full font-medium",
-        meta.bg, meta.text,
-        size === "sm" ? "px-2 py-0.5 text-xs" : "px-3 py-1 text-sm",
+        "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
+        meta.className,
       )}
     >
-      <Icon className={size === "sm" ? "h-3 w-3" : "h-3.5 w-3.5"} />
       {meta.label}
     </span>
   );

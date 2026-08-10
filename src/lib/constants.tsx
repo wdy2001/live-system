@@ -3,7 +3,32 @@ import {
 } from "lucide-react";
 import type { UtilityType, RepairType, RepairStatus, BillStatus } from "@/types";
 
-/** 缴费类型元信息：标签 / 颜色 / 图标 / 单位 */
+export const TYPE_OPTIONS: Record<
+  UtilityType | "other",
+  { label: string; color: string }
+> = {
+  electricity: { label: "电费", color: "text-yellow-600 bg-yellow-100" },
+  water: { label: "水费", color: "text-blue-600 bg-blue-100" },
+  gas: { label: "燃气费", color: "text-green-600 bg-green-100" },
+  other: { label: "其他", color: "text-gray-600 bg-gray-100" },
+};
+
+type StatusKey =
+  | BillStatus
+  | RepairStatus
+  | "normal"
+  | "urgent";
+
+export const STATUS_MAP: Record<StatusKey, { label: string; color: string }> = {
+  unpaid: { label: "待缴费", color: "text-red-600 bg-red-100" },
+  paid: { label: "已缴费", color: "text-green-600 bg-green-100" },
+  pending: { label: "待受理", color: "text-orange-600 bg-orange-100" },
+  processing: { label: "处理中", color: "text-blue-600 bg-blue-100" },
+  resolved: { label: "已完成", color: "text-green-600 bg-green-100" },
+  normal: { label: "普通", color: "text-gray-600 bg-gray-100" },
+  urgent: { label: "紧急", color: "text-red-600 bg-red-100" },
+};
+
 export const UTILITY_META: Record<
   UtilityType,
   { label: string; icon: LucideIcon; unit: string; text: string; bg: string; ring: string; dot: string; solid: string }

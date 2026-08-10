@@ -1,37 +1,42 @@
-import type { LucideIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
+import type { ReactNode } from "react";
+
+type StatCardVariant = "blue" | "green" | "orange";
 
 interface StatCardProps {
-  label: string;
-  value: string;
-  hint?: string;
-  icon: LucideIcon;
-  accent: "forest" | "energy" | "aqua" | "clay";
-  delay?: number;
+  icon: ReactNode;
+  title: string;
+  value: string | number;
+  subValue?: string;
+  variant?: StatCardVariant;
 }
 
-const ACCENT: Record<StatCardProps["accent"], { bg: string; text: string; ring: string }> = {
-  forest: { bg: "bg-forest-50", text: "text-forest-600", ring: "ring-forest-100" },
-  energy: { bg: "bg-energy-50", text: "text-energy-600", ring: "ring-energy-100" },
-  aqua: { bg: "bg-aqua-50", text: "text-aqua-500", ring: "ring-aqua-100" },
-  clay: { bg: "bg-clay-50", text: "text-clay-500", ring: "ring-clay-100" },
+const VARIANT_STYLES: Record<StatCardVariant, { bg: string; text: string }> = {
+  blue: { bg: "bg-blue-50", text: "text-blue-600" },
+  green: { bg: "bg-emerald-50", text: "text-emerald-600" },
+  orange: { bg: "bg-amber-50", text: "text-amber-600" },
 };
 
-export default function StatCard({ label, value, hint, icon: Icon, accent, delay = 0 }: StatCardProps) {
-  const a = ACCENT[accent];
+export default function StatCard({
+  icon,
+  title,
+  value,
+  subValue,
+  variant = "blue",
+}: StatCardProps) {
+  const styles = VARIANT_STYLES[variant];
+
   return (
-    <div
-      className="card card-hover animate-fade-up"
-      style={{ animationDelay: `${delay}ms` }}
-    >
+    <div className="bg-white rounded-2xl shadow-sm p-6">
       <div className="flex items-start justify-between">
         <div className="min-w-0">
-          <p className="text-sm text-ink-muted">{label}</p>
-          <p className="mt-2 font-serif text-2xl font-bold text-ink">{value}</p>
-          {hint && <p className="mt-1 text-xs text-ink-muted">{hint}</p>}
+          <p className="text-sm text-gray-500">{title}</p>
+          <p className="text-2xl font-bold mt-2 text-gray-800">{value}</p>
+          {subValue && <p className="text-xs text-gray-400 mt-1">{subValue}</p>}
         </div>
-        <div className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ring-1", a.bg, a.text, a.ring)}>
-          <Icon className="h-5 w-5" />
+        <div
+          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${styles.bg} ${styles.text}`}
+        >
+          {icon}
         </div>
       </div>
     </div>
