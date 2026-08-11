@@ -49,7 +49,11 @@ backend/.env
 
 # IDE 内部文档
 .trae/
+.trae-html-share-packages/
 
 # 临时测试文件
 backend/test_api.py
 backend/test_deep.py
+
+# 构建产物（可按需提交）
+# dist/
