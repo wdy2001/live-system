@@ -8,8 +8,8 @@ pnpm-debug.log*
 lerna-debug.log*
 
 # 依赖
-node_modules
-dist
+node_modules/
+dist/
 dist-ssr
 *.local
 
@@ -35,6 +35,7 @@ backend/.env
 *.sqlite
 *.sqlite3
 *.db
+life_system.db
 
 # 编辑器
 .vscode/*

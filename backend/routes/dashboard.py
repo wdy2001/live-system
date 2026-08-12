@@ -35,15 +35,22 @@ def overview():
     unpaid_total = float(unpaid_rows[0] or 0)
     unpaid_count = int(unpaid_rows[1] or 0)
 
-    # 本月用量
-    this_period = datetime.utcnow().strftime("%Y-%m")
-    month_bills = (
-        Bill.query.filter(Bill.household_id.in_(household_ids), Bill.period == this_period)
-        .all()
-    )
+    # 查询户号下所有账单，按 period 聚合
+    all_bills = Bill.query.filter(Bill.household_id.in_(household_ids)).all()
+    period_usage = {}
+    for b in all_bills:
+        if b.period not in period_usage:
+            period_usage[b.period] = {"electricity": 0.0, "water": 0.0, "gas": 0.0}
+        period_usage[b.period][b.type] += float(b.usage_amount)
+
+    # 所有 period 倒序排列
+    sorted_periods = sorted(period_usage.keys(), reverse=True)
+
+    # 最近一期用量（this_month_usage = 最新一期用量）
     this_month_usage = {"electricity": 0.0, "water": 0.0, "gas": 0.0}
-    for b in month_bills:
-        this_month_usage[b.type] += float(b.usage_amount)
+    if sorted_periods:
+        latest_period = sorted_periods[0]
+        this_month_usage = period_usage[latest_period]
 
     # 报修统计
     repairs = RepairRequest.query.filter_by(user_id=uid).all()
@@ -52,9 +59,14 @@ def overview():
         if r.status in repair_stats:
             repair_stats[r.status] += 1
 
-    # 近6个月趋势
+    # 近6个月趋势：从最近一期往前推 6 个日历月
     trends = []
-    now = datetime.utcnow()
+    if sorted_periods:
+        latest_period = sorted_periods[0]
+        ly, lm = map(int, latest_period.split("-"))
+        now = datetime(ly, lm, 1)
+    else:
+        now = datetime.utcnow()
     for i in range(5, -1, -1):
         y = now.year
         m = now.month - i
@@ -62,12 +74,7 @@ def overview():
             m += 12
             y -= 1
         period = f"{y:04d}-{m:02d}"
-        period_bills = [b for b in month_bills if b.period == period] if period == this_period else (
-            Bill.query.filter(Bill.household_id.in_(household_ids), Bill.period == period).all()
-        )
-        usage = {"electricity": 0.0, "water": 0.0, "gas": 0.0}
-        for b in period_bills:
-            usage[b.type] += float(b.usage_amount)
+        usage = period_usage.get(period, {"electricity": 0.0, "water": 0.0, "gas": 0.0})
         trends.append({"period": period, "usage": usage})
 
     return jsonify(
