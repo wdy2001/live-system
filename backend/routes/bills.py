@@ -94,18 +94,22 @@ def pay_bill(bill_id):
         return jsonify(msg="该账单已支付"), 400
 
     method = (request.get_json() or {}).get("method", "alipay")
-    payment = Payment(
-        bill_id=bill.id,
-        amount=bill.amount,
-        method=method,
-        transaction_no=f"PAY{uuid.uuid4().hex.upper()}",
-    )
-    bill.status = "paid"
-    bill.paid_at = datetime.utcnow()
-    bill.meter.current_reading = bill.current_reading
+    try:
+        payment = Payment(
+            bill_id=bill.id,
+            amount=bill.amount,
+            method=method,
+            transaction_no=f"PAY{uuid.uuid4().hex.upper()}",
+        )
+        bill.status = "paid"
+        bill.paid_at = datetime.utcnow()
+        bill.meter.current_reading = bill.current_reading
 
-    db.session.add(payment)
-    db.session.commit()
+        db.session.add(payment)
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        raise
 
     return jsonify(
         payment=payment.to_dict(),

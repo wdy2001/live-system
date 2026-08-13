@@ -61,10 +61,11 @@ def seed():
             BillTypeRule(type="electricity", tier=1, min_usage=0, max_usage=180, unit_price=0.5880, description="第一档（年用电 0-180 度）"),
             BillTypeRule(type="electricity", tier=2, min_usage=180, max_usage=400, unit_price=0.6380, description="第二档（年用电 181-400 度）"),
             BillTypeRule(type="electricity", tier=3, min_usage=400, max_usage=None, unit_price=0.8880, description="第三档（年用电 400 度以上）"),
-            # 水价：两档
+            # 水价：三档
             BillTypeRule(type="water", tier=1, min_usage=0, max_usage=12, unit_price=3.5000, description="第一档（月用水 0-12 吨）"),
-            BillTypeRule(type="water", tier=2, min_usage=12, max_usage=None, unit_price=4.6000, description="第二档（月用水 12 吨以上）"),
-            # 气价：两档
+            BillTypeRule(type="water", tier=2, min_usage=12, max_usage=24, unit_price=4.6000, description="第二档（月用水 13-24 吨）"),
+            BillTypeRule(type="water", tier=3, min_usage=24, max_usage=None, unit_price=5.8000, description="第三档（月用水 24 吨以上）"),
+            # 气价：三档
             BillTypeRule(type="gas", tier=1, min_usage=0, max_usage=310, unit_price=2.6700, description="第一档（年用气 0-310 立方）"),
             BillTypeRule(type="gas", tier=2, min_usage=310, max_usage=600, unit_price=2.9500, description="第二档（年用气 311-600 立方）"),
             BillTypeRule(type="gas", tier=3, min_usage=600, max_usage=None, unit_price=3.5600, description="第三档（年用气 600 立方以上）"),
@@ -127,12 +128,6 @@ def seed():
 
         # ---------- 报修工单 ----------
         repairs = [
-            RepairRequest(
-                user_id=demo.id, type="electricity", description="客厅灯经常闪烁，疑似线路接触不良",
-                phone="13900001111", urgency="normal", status="resolved",
-                created_at=datetime.utcnow() - timedelta(days=20),
-                resolved_at=datetime.utcnow() - timedelta(days=15),
-            ),
             RepairRequest(
                 user_id=demo.id, type="water", description="厨房水龙头漏水，关不紧",
                 phone="13900001111", urgency="normal", status="processing",

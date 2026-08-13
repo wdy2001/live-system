@@ -16,6 +16,8 @@ dist-ssr
 # Python
 __pycache__/
 *.py[cod]
+*.pyc
+*.pyo
 *$py.class
 *.so
 .Python
@@ -24,6 +26,7 @@ backend/.venv/
 venv/
 .venv/
 *.egg-info/
+.pytest_cache/
 
 # 环境变量与密钥（切勿提交）
 backend/.env

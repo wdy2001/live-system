@@ -132,3 +132,13 @@ npm run dev              # 启动于 http://localhost:5173
 ## License
 
 MIT
+
+## 上传到 GitHub
+
+```bash
+# 1. 在 GitHub 创建新仓库（不要勾选 Initialize README）
+# 2. 复制仓库地址（HTTPS 或 SSH），执行：
+git remote add origin <你的 GitHub 仓库 URL>
+git branch -M main
+git push -u origin main
+```

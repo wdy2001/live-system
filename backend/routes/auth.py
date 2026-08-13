@@ -53,10 +53,10 @@ def register():
 
     if not username or not password:
         return jsonify(msg="用户名和密码不能为空"), 400
-    if len(username) < 4 or len(username) > 20:
-        return jsonify(msg="用户名长度需为 4-20 位"), 400
-    if len(password) < 6 or len(password) > 20:
-        return jsonify(msg="密码长度需为 6-20 位"), 400
+    if len(username) < 3:
+        return jsonify(msg="用户名长度至少 3 位"), 400
+    if len(password) < 6:
+        return jsonify(msg="密码长度至少 6 位"), 400
     if confirm_password is not None and confirm_password != password:
         return jsonify(msg="两次输入的密码不一致"), 400
     if User.query.filter_by(username=username).first():
@@ -99,7 +99,7 @@ def register():
     db.session.commit()
 
     token = create_access_token(identity=str(user.id))
-    return jsonify(token=token, user=user.to_dict()), 201
+    return jsonify(access_token=token, user=user.to_dict()), 201
 
 
 @auth_bp.post("/login")
@@ -113,7 +113,7 @@ def login():
         return jsonify(msg="用户名或密码错误"), 401
 
     token = create_access_token(identity=str(user.id))
-    return jsonify(token=token, user=user.to_dict())
+    return jsonify(access_token=token, user=user.to_dict())
 
 
 @auth_bp.get("/me")

@@ -34,8 +34,9 @@ class Config:
     DB_PASSWORD = os.getenv("DB_PASSWORD", "")
     DB_NAME = os.getenv("DB_NAME", "life_system")
     USE_SQLITE = os.getenv("USE_SQLITE", "false").lower() == "true"
+    DATABASE_URL = os.getenv("DATABASE_URL", None)
 
-    SQLALCHEMY_DATABASE_URI = _build_db_uri(
+    SQLALCHEMY_DATABASE_URI = DATABASE_URL or _build_db_uri(
         USE_SQLITE, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
