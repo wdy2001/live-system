@@ -84,7 +84,7 @@ export const REPAIR_STATUS_META: Record<
   { label: string; className: string; step: number }
 > = {
   pending: { label: "待受理", className: "bg-clay-50 text-clay-500", step: 1 },
-  processing: { label: "处理中", className: "bg-energy-50 text-energy-600", step: 2 },
+  processing: { label: "处理中", className: "bg-aqua-50 text-aqua-600", step: 2 },
   resolved: { label: "已完成", className: "bg-forest-50 text-forest-600", step: 3 },
 };
 

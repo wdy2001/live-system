@@ -1,18 +1,25 @@
 import { useEffect, useState } from "react";
-import { Wrench, Send, CheckCircle2, Clock, Loader2, Phone, Zap, Droplets, Flame, HelpCircle } from "lucide-react";
+import { Wrench, Send, CheckCircle2, Clock, Loader2, Phone, Zap, Droplets, Flame, HelpCircle, Filter } from "lucide-react";
 import api from "@/lib/api";
-import type { RepairRequest, RepairType } from "@/types";
+import type { RepairRequest, RepairType, RepairStatus } from "@/types";
 import { REPAIR_TYPE_LABEL, REPAIR_STATUS_META, UTILITY_META } from "@/lib/constants";
 import { PageHeader } from "@/components/Layout";
 import { SkeletonList } from "@/components/Skeleton";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/auth";
 
-const REPAIR_TYPE_OPTIONS: Array<{ value: RepairType; icon: typeof Zap }> = [
-  { value: "electricity", icon: Zap },
-  { value: "water", icon: Droplets },
-  { value: "gas", icon: Flame },
-  { value: "other", icon: HelpCircle },
+const STATUS_FILTERS: Array<{ value: RepairStatus | "all"; label: string }> = [
+  { value: "all", label: "全部" },
+  { value: "pending", label: "待受理" },
+  { value: "processing", label: "处理中" },
+  { value: "resolved", label: "已解决" },
+];
+
+const REPAIR_TYPE_OPTIONS: Array<{ value: RepairType; label: string }> = [
+  { value: "electricity", label: "电费故障" },
+  { value: "water", label: "水费故障" },
+  { value: "gas", label: "燃气故障" },
+  { value: "other", label: "其他故障" },
 ];
 
 export default function Repair() {
@@ -29,12 +36,16 @@ export default function Repair() {
   const [urgency, setUrgency] = useState<"normal" | "urgent">("normal");
   const [error, setError] = useState("");
 
+  // 筛选
+  const [statusFilter, setStatusFilter] = useState<RepairStatus | "all">("all");
+
   const load = () => {
     setLoading(true);
-    api.get("/repairs").then((r) => setRepairs(r.data.repairs)).finally(() => setLoading(false));
+    const url = statusFilter === "all" ? "/repairs" : `/repairs?status=${statusFilter}`;
+    api.get(url).then((r) => setRepairs(r.data.repairs)).finally(() => setLoading(false));
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [statusFilter]);
   useEffect(() => { if (user?.phone) setPhone(user.phone); }, [user]);
 
   const submit = async (e: React.FormEvent) => {
@@ -72,29 +83,15 @@ export default function Repair() {
             {/* 报修类型 */}
             <div className="mb-4">
               <label className="label">报修类型</label>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                {REPAIR_TYPE_OPTIONS.map((opt) => {
-                  const active = type === opt.value;
-                  const Icon = opt.icon;
-                  const accent = opt.value !== "other" ? UTILITY_META[opt.value as "electricity"] : null;
-                  return (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => setType(opt.value)}
-                      className={cn(
-                        "flex flex-col items-center gap-1.5 rounded-xl border p-3 text-xs font-medium transition",
-                        active
-                          ? "border-forest-500 bg-forest-50 text-forest-700"
-                          : "border-forest-50 text-ink-muted hover:bg-cream",
-                      )}
-                    >
-                      <Icon className={cn("h-5 w-5", active ? "text-forest-600" : accent?.text ?? "text-ink-muted")} />
-                      {REPAIR_TYPE_LABEL[opt.value]}
-                    </button>
-                  );
-                })}
-              </div>
+              <select
+                value={type}
+                onChange={(e) => setType(e.target.value as RepairType)}
+                className="input"
+              >
+                {REPAIR_TYPE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
             </div>
 
             {/* 故障描述 */}
@@ -126,27 +123,29 @@ export default function Repair() {
             {/* 紧急程度 */}
             <div className="mb-5">
               <label className="label">紧急程度</label>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setUrgency("normal")}
-                  className={cn(
-                    "flex-1 rounded-xl border px-4 py-2.5 text-sm font-medium transition",
-                    urgency === "normal" ? "border-forest-500 bg-forest-50 text-forest-700" : "border-forest-50 text-ink-muted hover:bg-cream",
-                  )}
-                >
-                  普通
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setUrgency("urgent")}
-                  className={cn(
-                    "flex-1 rounded-xl border px-4 py-2.5 text-sm font-medium transition",
-                    urgency === "urgent" ? "border-clay-500 bg-clay-50 text-clay-600" : "border-forest-50 text-ink-muted hover:bg-cream",
-                  )}
-                >
-                  紧急
-                </button>
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="urgency"
+                    value="normal"
+                    checked={urgency === "normal"}
+                    onChange={() => setUrgency("normal")}
+                    className="w-4 h-4 text-forest-600"
+                  />
+                  <span className={cn("text-sm", urgency === "normal" ? "text-forest-700 font-medium" : "text-ink-muted")}>普通</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="urgency"
+                    value="urgent"
+                    checked={urgency === "urgent"}
+                    onChange={() => setUrgency("urgent")}
+                    className="w-4 h-4 text-clay-600"
+                  />
+                  <span className={cn("text-sm", urgency === "urgent" ? "text-clay-600 font-medium" : "text-ink-muted")}>紧急</span>
+                </label>
               </div>
             </div>
 
@@ -165,7 +164,30 @@ export default function Repair() {
 
         {/* 工单列表 */}
         <div className="lg:col-span-3">
-          <h3 className="mb-4 font-serif text-lg font-bold text-forest-800">我的报修记录</h3>
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <h3 className="font-serif text-lg font-bold text-forest-800">我的报修记录</h3>
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-ink-muted" />
+              <div className="flex rounded-lg border border-forest-100 bg-white p-1">
+                {STATUS_FILTERS.map((f) => {
+                  const active = statusFilter === f.value;
+                  return (
+                    <button
+                      key={f.value}
+                      type="button"
+                      onClick={() => setStatusFilter(f.value)}
+                      className={cn(
+                        "rounded-md px-3 py-1.5 text-xs font-medium transition",
+                        active ? "bg-forest-600 text-white shadow-sm" : "text-ink-muted hover:bg-cream",
+                      )}
+                    >
+                      {f.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
           {loading ? (
             <SkeletonList count={4} />
           ) : repairs.length === 0 ? (

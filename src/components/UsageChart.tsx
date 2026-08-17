@@ -11,11 +11,9 @@ import {
 
 interface UsageData {
   period: string;
-  usage: {
-    electricity: number;
-    water: number;
-    gas: number;
-  };
+  electricity: number;
+  water: number;
+  gas: number;
 }
 
 interface UsageChartProps {
@@ -23,16 +21,9 @@ interface UsageChartProps {
 }
 
 export default function UsageChart({ data }: UsageChartProps) {
-  const chartData = data.map((d) => ({
-    period: d.period,
-    electricity: d.usage.electricity,
-    water: d.usage.water,
-    gas: d.usage.gas,
-  }));
-
   return (
     <ResponsiveContainer width="100%" height={300}>
-      <BarChart data={chartData} barGap={2} barCategoryGap="20%">
+      <BarChart data={data} barGap={2} barCategoryGap="20%">
         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
         <XAxis
           dataKey="period"
@@ -62,21 +53,21 @@ export default function UsageChart({ data }: UsageChartProps) {
         <Bar
           dataKey="electricity"
           name="电"
-          fill="#F59E0B"
+          fill="#3B82F6"
           radius={[4, 4, 0, 0]}
           maxBarSize={32}
         />
         <Bar
           dataKey="water"
           name="水"
-          fill="#3B82F6"
+          fill="#10B981"
           radius={[4, 4, 0, 0]}
           maxBarSize={32}
         />
         <Bar
           dataKey="gas"
           name="气"
-          fill="#10B981"
+          fill="#F59E0B"
           radius={[4, 4, 0, 0]}
           maxBarSize={32}
         />

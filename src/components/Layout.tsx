@@ -1,18 +1,18 @@
 import { type ReactNode } from "react";
-import { NavLink, useNavigate, useLocation } from "react-router-dom";
+import { NavLink, useNavigate, useLocation, Link } from "react-router-dom";
 import {
   Home, CreditCard, FileText, Settings, Wrench,
-  LogOut,
+  LogOut, LogIn,
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import { cn } from "@/lib/utils";
 
 const NAV = [
-  { to: "/dashboard", label: "工作台", icon: Home, end: true },
-  { to: "/payment", label: "缴费中心", icon: CreditCard },
-  { to: "/records", label: "缴费记录", icon: FileText },
-  { to: "/rules", label: "计费规则", icon: Settings },
-  { to: "/repair", label: "故障报修", icon: Wrench },
+  { to: "/dashboard", label: "工作台", icon: Home, end: true, protected: true },
+  { to: "/payment", label: "缴费中心", icon: CreditCard, protected: true },
+  { to: "/records", label: "缴费记录", icon: FileText, protected: true },
+  { to: "/rules", label: "计费规则", icon: Settings, protected: false },
+  { to: "/repair", label: "故障报修", icon: Wrench, protected: true },
 ];
 
 const PAGE_TITLE: Record<string, string> = {
@@ -35,6 +35,8 @@ export default function Layout({ children }: { children: ReactNode }) {
 
   const currentPageTitle = PAGE_TITLE[location.pathname] || "工作台";
 
+  const visibleNav = NAV.filter((item) => !item.protected || !!user);
+
   return (
     <div className="flex min-h-screen">
       <aside className="w-60 bg-slate-50 min-h-screen flex flex-col">
@@ -44,7 +46,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         </div>
 
         <nav className="flex-1 space-y-1 px-3">
-          {NAV.map((item) => (
+          {visibleNav.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
@@ -69,14 +71,26 @@ export default function Layout({ children }: { children: ReactNode }) {
         <header className="bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-gray-800">{currentPageTitle}</h2>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-700">{user?.username}</span>
-            <button
-              onClick={handleLogout}
-              className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 transition"
-            >
-              <LogOut className="h-4 w-4" />
-              退出登录
-            </button>
+            {user ? (
+              <>
+                <span className="text-sm text-gray-700">{user.username}</span>
+                <button
+                  onClick={handleLogout}
+                  className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 transition"
+                >
+                  <LogOut className="h-4 w-4" />
+                  退出登录
+                </button>
+              </>
+            ) : (
+              <Link
+                to="/login"
+                className="inline-flex items-center gap-2 rounded-lg border border-blue-500 bg-blue-500 px-3 py-1.5 text-sm text-white hover:bg-blue-600 transition"
+              >
+                <LogIn className="h-4 w-4" />
+                登录
+              </Link>
+            )}
           </div>
         </header>
 

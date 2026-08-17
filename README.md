@@ -17,7 +17,7 @@
 |------|------|
 | 前端 | React 18 + TypeScript + Vite + TailwindCSS + Zustand + Recharts |
 | 后端 | Python + Flask + Flask-SQLAlchemy + Flask-JWT-Extended |
-| 数据库 | MySQL 8.0 |
+| 数据库 | MySQL 8.0 / SQLite 3（开发测试可选） |
 
 ## 项目结构
 

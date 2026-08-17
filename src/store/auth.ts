@@ -38,12 +38,12 @@ export const useAuthStore = create<AuthState>()(
 
       loginApi: async (username, password) => {
         const { data } = await api.post("/auth/login", { username, password });
-        set({ token: data.token, user: data.user });
+        set({ token: data.access_token, user: data.user });
       },
 
       registerApi: async (payload) => {
         const { data } = await api.post("/auth/register", payload);
-        set({ token: data.token, user: data.user });
+        set({ token: data.access_token, user: data.user });
       },
     }),
     {

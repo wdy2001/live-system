@@ -16,18 +16,19 @@ def overview():
     households = Household.query.filter_by(user_id=uid).all()
     household_ids = [h.id for h in households]
 
-    unpaid_total = 0.0
+    total_unpaid_amount = 0.0
+    unpaid_count = 0
     this_month_usage = {"electricity": 0.0, "water": 0.0, "gas": 0.0}
-    repair_processing = 0
-    monthly_usage = []
+    repair_stats = {"pending": 0, "processing": 0, "resolved": 0}
+    usage_trend = []
 
     if household_ids:
-        unpaid_rows = (
-            Bill.query.filter(Bill.household_id.in_(household_ids), Bill.status == "unpaid")
-            .with_entities(func.sum(Bill.amount))
-            .first()
+        unpaid_query = Bill.query.filter(
+            Bill.household_id.in_(household_ids), Bill.status == "unpaid"
         )
-        unpaid_total = float(unpaid_rows[0] or 0)
+        unpaid_rows = unpaid_query.with_entities(func.sum(Bill.amount)).first()
+        total_unpaid_amount = float(unpaid_rows[0] or 0)
+        unpaid_count = unpaid_query.count()
 
         all_bills = Bill.query.filter(Bill.household_id.in_(household_ids)).all()
         period_usage = {}
@@ -42,7 +43,9 @@ def overview():
             latest_period = sorted_periods[0]
             this_month_usage = period_usage[latest_period]
 
-        repair_processing = RepairRequest.query.filter_by(user_id=uid, status="processing").count()
+        repair_stats["pending"] = RepairRequest.query.filter_by(user_id=uid, status="pending").count()
+        repair_stats["processing"] = RepairRequest.query.filter_by(user_id=uid, status="processing").count()
+        repair_stats["resolved"] = RepairRequest.query.filter_by(user_id=uid, status="resolved").count()
 
         if sorted_periods:
             latest_period = sorted_periods[0]
@@ -58,11 +61,17 @@ def overview():
                 y -= 1
             period = f"{y:04d}-{m:02d}"
             usage = period_usage.get(period, {"electricity": 0.0, "water": 0.0, "gas": 0.0})
-            monthly_usage.append({"period": period, **usage})
+            usage_trend.append({"period": period, **usage})
+
+    households_data = [h.to_dict() for h in households]
+    for h in households_data:
+        h["meters"] = [m.to_dict() for m in Household.query.get(h["id"]).meters]
 
     return jsonify(
-        unpaid_total=unpaid_total,
+        total_unpaid_amount=total_unpaid_amount,
+        unpaid_count=unpaid_count,
         this_month_usage=this_month_usage,
-        repair_processing=repair_processing,
-        monthly_usage=monthly_usage,
+        repair_stats=repair_stats,
+        usage_trend=usage_trend,
+        households=households_data,
     )

@@ -12,7 +12,7 @@ def calculate_tiered_amount(type_: str, usage: float) -> dict:
         .all()
     )
     if not rules:
-        return {"amount": 0.0, "breakdown": []}
+        return {"amount": 0.0, "total_amount": 0.0, "breakdown": []}
 
     remaining = Decimal(str(usage))
     total = Decimal("0")
@@ -34,15 +34,21 @@ def calculate_tiered_amount(type_: str, usage: float) -> dict:
         total += subtotal
         remaining -= used_in_tier
 
+        tier_amount = float(subtotal.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
         breakdown.append({
             "tier": rule.tier,
             "min_usage": float(tier_min),
             "max_usage": float(tier_max) if tier_max is not None else None,
             "unit_price": float(rule.unit_price),
             "usage_in_tier": float(used_in_tier),
-            "subtotal": float(subtotal.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)),
+            "subtotal": tier_amount,
+            "tier_amount": tier_amount,
             "description": rule.description,
         })
 
-    amount = float(total.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
-    return {"amount": amount, "breakdown": breakdown}
+    total_amount = float(total.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
+    return {
+        "amount": total_amount,
+        "total_amount": total_amount,
+        "breakdown": breakdown,
+    }

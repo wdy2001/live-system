@@ -99,11 +99,11 @@ export interface Repair {
 export type RepairRequest = Repair;
 
 export interface DashboardResponse {
-  unpaid_total: number;
+  total_unpaid_amount: number;
   unpaid_count: number;
   this_month_usage: Record<UtilityType, number>;
   repair_stats: Record<"pending" | "processing" | "resolved", number>;
-  trends: Array<{ period: string; usage: Record<UtilityType, number> }>;
+  usage_trend: Array<{ period: string; electricity: number; water: number; gas: number }>;
   households: Household[];
 }
 

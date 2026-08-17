@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Wallet, BarChart3, Wrench, ReceiptText } from "lucide-react";
+import { Wallet, Zap, Droplets, Flame, Wrench, ReceiptText, BarChart3, Clock, Loader2, CheckCircle2 } from "lucide-react";
 import api from "@/lib/api";
 import type { DashboardResponse, Bill } from "@/types";
 import { formatMoney } from "@/lib/utils";
@@ -29,10 +29,6 @@ export default function Dashboard() {
       .finally(() => setLoading(false));
   }, []);
 
-  const monthUsageValue = data
-    ? `${data.this_month_usage.electricity.toFixed(1)}度 / ${data.this_month_usage.water.toFixed(1)}吨 / ${data.this_month_usage.gas.toFixed(1)}立方`
-    : "0度 / 0吨 / 0立方";
-
   return (
     <>
       <PageHeader
@@ -41,36 +37,83 @@ export default function Dashboard() {
       />
 
       {loading ? (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <SkeletonCard className="h-32" />
           <SkeletonCard className="h-32" />
           <SkeletonCard className="h-32" />
           <SkeletonCard className="h-32" />
         </div>
       ) : data ? (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
           <StatCard
             icon={<Wallet className="h-6 w-6" />}
             title="待缴总额"
-            value={formatMoney(data.unpaid_total)}
+            value={formatMoney(data.total_unpaid_amount)}
             subValue={`共 ${data.unpaid_count} 条待缴`}
             variant="orange"
           />
           <StatCard
-            icon={<BarChart3 className="h-6 w-6" />}
-            title="本月用量"
-            value={monthUsageValue}
-            subValue="本月用量合计"
+            icon={<Zap className="h-6 w-6" />}
+            title="本月电费"
+            value={`${data.this_month_usage.electricity.toFixed(1)} 度`}
+            subValue="本月用电量"
             variant="blue"
           />
           <StatCard
-            icon={<Wrench className="h-6 w-6" />}
-            title="待处理报修"
-            value={data.repair_stats.pending}
-            subValue="待处理工单"
+            icon={<Droplets className="h-6 w-6" />}
+            title="本月水费"
+            value={`${data.this_month_usage.water.toFixed(1)} 吨`}
+            subValue="本月用水量"
             variant="green"
+          />
+          <StatCard
+            icon={<Flame className="h-6 w-6" />}
+            title="本月燃气费"
+            value={`${data.this_month_usage.gas.toFixed(1)} 立方`}
+            subValue="本月用气量"
+            variant="orange"
           />
         </div>
       ) : null}
+
+      <div className="mt-6 bg-white rounded-2xl shadow-sm p-6">
+        <div className="mb-4">
+          <h3 className="text-lg font-bold text-gray-800">报修进度</h3>
+        </div>
+        {loading ? (
+          <SkeletonCard className="h-24" />
+        ) : data ? (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div className="flex items-center gap-4 rounded-xl bg-amber-50 p-4 border border-amber-100">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+                <Clock className="h-6 w-6" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm text-amber-700">待处理</p>
+                <p className="text-2xl font-bold text-amber-900 mt-1">{data.repair_stats.pending}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 rounded-xl bg-blue-50 p-4 border border-blue-100">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                <Loader2 className="h-6 w-6" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm text-blue-700">处理中</p>
+                <p className="text-2xl font-bold text-blue-900 mt-1">{data.repair_stats.processing}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 rounded-xl bg-emerald-50 p-4 border border-emerald-100">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                <CheckCircle2 className="h-6 w-6" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm text-emerald-700">已解决</p>
+                <p className="text-2xl font-bold text-emerald-900 mt-1">{data.repair_stats.resolved}</p>
+              </div>
+            </div>
+          </div>
+        ) : null}
+      </div>
 
       <div className="mt-6 bg-white rounded-2xl shadow-sm p-6">
         <div className="mb-4">
@@ -78,8 +121,8 @@ export default function Dashboard() {
         </div>
         {loading ? (
           <SkeletonCard className="h-[300px]" />
-        ) : data && data.trends && data.trends.length > 0 ? (
-          <UsageChart data={data.trends} />
+        ) : data && data.usage_trend && data.usage_trend.length > 0 ? (
+          <UsageChart data={data.usage_trend} />
         ) : (
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-gray-100">
