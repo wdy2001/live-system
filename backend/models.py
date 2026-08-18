@@ -37,6 +37,10 @@ class Household(db.Model):
     address = db.Column(db.String(255))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+    __table_args__ = (
+        db.Index("idx_household_no", "household_no"),
+    )
+
     meters = db.relationship("Meter", backref="household", lazy=True)
     bills = db.relationship("Bill", backref="household", lazy=True)
 
@@ -58,6 +62,10 @@ class Meter(db.Model):
     type = db.Column(db.Enum("electricity", "water", "gas"), nullable=False)
     meter_no = db.Column(db.String(32), nullable=False)
     current_reading = db.Column(db.Numeric(12, 2), default=0)
+
+    __table_args__ = (
+        db.Index("idx_meter_no", "meter_no"),
+    )
 
     bills = db.relationship("Bill", backref="meter", lazy=True)
 
@@ -109,6 +117,12 @@ class Bill(db.Model):
     status = db.Column(db.Enum("unpaid", "paid"), default="unpaid")
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     paid_at = db.Column(db.DateTime)
+
+    __table_args__ = (
+        db.Index("idx_bills_period", "period"),
+        db.Index("idx_bills_type", "type"),
+        db.Index("idx_bills_status", "status"),
+    )
 
     payment = db.relationship("Payment", backref="bill", uselist=False, lazy=True)
 
@@ -162,6 +176,10 @@ class RepairRequest(db.Model):
     status = db.Column(db.Enum("pending", "processing", "resolved"), default="pending")
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     resolved_at = db.Column(db.DateTime)
+
+    __table_args__ = (
+        db.Index("idx_repairs_status", "status"),
+    )
 
     def to_dict(self):
         return {

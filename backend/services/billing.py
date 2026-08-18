@@ -19,16 +19,15 @@ def calculate_tiered_amount(type_: str, usage: float) -> dict:
     breakdown = []
 
     for rule in rules:
-        if remaining <= 0:
-            break
-
         tier_min = Decimal(str(rule.min_usage))
         tier_max = Decimal(str(rule.max_usage)) if rule.max_usage is not None else None
         tier_capacity = (tier_max - tier_min) if tier_max is not None else remaining
 
-        used_in_tier = min(remaining, tier_capacity)
-        if used_in_tier <= 0:
-            continue
+        used_in_tier = Decimal("0")
+        if remaining > 0:
+            used_in_tier = min(remaining, tier_capacity)
+            if used_in_tier < 0:
+                used_in_tier = Decimal("0")
 
         subtotal = used_in_tier * Decimal(str(rule.unit_price))
         total += subtotal

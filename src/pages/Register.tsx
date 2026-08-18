@@ -27,7 +27,7 @@ export default function Register() {
     && confirmPassword === password;
 
   const submit = async () => {
-    await registerApi({ username, password, real_name: "", phone: "" });
+    await registerApi({ username, password, confirm_password: confirmPassword, real_name: "", phone: "" });
     navigate("/dashboard");
   };
 

@@ -66,42 +66,59 @@ def seed():
             BillTypeRule(type="water", tier=2, min_usage=12, max_usage=24, unit_price=4.6000, description="第二档（月用水 13-24 吨）"),
             BillTypeRule(type="water", tier=3, min_usage=24, max_usage=None, unit_price=5.8000, description="第三档（月用水 24 吨以上）"),
             # 气价：三档
-            BillTypeRule(type="gas", tier=1, min_usage=0, max_usage=310, unit_price=2.6700, description="第一档（年用气 0-310 立方）"),
-            BillTypeRule(type="gas", tier=2, min_usage=310, max_usage=600, unit_price=2.9500, description="第二档（年用气 311-600 立方）"),
+            BillTypeRule(type="gas", tier=1, min_usage=0, max_usage=310, unit_price=2.6800, description="第一档（年用气 0-310 立方）"),
+            BillTypeRule(type="gas", tier=2, min_usage=310, max_usage=600, unit_price=2.9100, description="第二档（年用气 311-600 立方）"),
             BillTypeRule(type="gas", tier=3, min_usage=600, max_usage=None, unit_price=3.5600, description="第三档（年用气 600 立方以上）"),
         ]
         db.session.add_all(rules)
         db.session.commit()
 
-        # ---------- 账单（近 6 个月 + 本月未缴） ----------
+        # ---------- 账单（近 6 个月 + 最近 2 个月未缴） ----------
         now = datetime.utcnow()
-        bill_rows = [
-            # period, type, prev, curr
-            ("2025-12", "electricity", 2580, 2680),
-            ("2025-12", "water", 430, 442),
-            ("2025-12", "gas", 180, 195),
-            ("2026-01", "electricity", 2680, 2805),
-            ("2026-01", "water", 442, 455),
-            ("2026-01", "gas", 195, 208),
-            ("2026-02", "electricity", 2805, 2920),
-            ("2026-02", "water", 455, 468),
-            ("2026-02", "gas", 208, 220),
-            ("2026-03", "electricity", 2920, 3020),
-            ("2026-03", "water", 468, 478),
-            ("2026-03", "gas", 220, 230),
-            ("2026-04", "electricity", 3020, 3080),
-            ("2026-04", "water", 478, 486),
-            ("2026-04", "gas", 230, 243),
-            ("2026-05", "electricity", 3080, 3120),
-            ("2026-05", "water", 486, 498),
-            ("2026-05", "gas", 243, 256),
-        ]
+        # 动态生成近 6 个月的账单周期：以当前月份为基准向前推 5 个月（共 6 个月）
+        # 例如：当前 2026-08 → 周期为 2026-03, 2026-04, 2026-05, 2026-06, 2026-07, 2026-08
+        # 状态规则：前 4 个月（较早）已缴，最近 2 个月未缴
+        periods = []
+        for i in range(5, -1, -1):
+            m = now.month - i
+            y = now.year
+            while m <= 0:
+                m += 12
+                y -= 1
+            periods.append(f"{y:04d}-{m:02d}")
+
+        # 动态生成读数：以 meters 中 current_reading 为终点，向前反推每月读数
+        # 每月增量（与原硬编码一致）：电 60/125/115/100/60/40，水 12/13/13/10/8/12，气 15/13/12/10/13/13
+        # 简化：固定每月增量（按顺序，索引 0 是最早月份）
+        type_monthly_increments = {
+            "electricity": [100, 125, 115, 100, 60, 40],
+            "water":       [12,  13,  13,  10,  8,  12],
+            "gas":         [15,  13,  12,  10,  13,  13],
+        }
         meter_map = {m.type: m for m in meters}
+        bill_rows = []
+        for btype in ("electricity", "water", "gas"):
+            increments = type_monthly_increments[btype]
+            curr = float(meter_map[btype].current_reading)
+            readings_backward = []
+            for inc in reversed(increments):
+                prev = curr - inc
+                readings_backward.append((prev, curr))
+                curr = prev
+            # readings_backward 顺序：[ (month5_prev, month5_curr), ..., (month0_prev, month0_curr) ]
+            # 翻转使其与 periods 对齐（索引 0 最早月份）
+            readings = list(reversed(readings_backward))
+            for i, period in enumerate(periods):
+                prev_r, curr_r = readings[i]
+                bill_rows.append((period, btype, prev_r, curr_r))
+
+        # 最近 2 个月未缴（periods 最后 2 个），更早的已缴
+        unpaid_start_idx = len(periods) - 2
+        unpaid_periods = set(periods[unpaid_start_idx:])
         for period, btype, prev, curr in bill_rows:
             usage = curr - prev
             amount = _calc(rules, btype, usage)
-            # 近两个月未缴，更早的已缴
-            is_paid = period < "2026-04"
+            is_paid = period not in unpaid_periods
             bill = Bill(
                 household_id=h1.id,
                 meter_id=meter_map[btype].id,
@@ -112,7 +129,7 @@ def seed():
                 usage_amount=usage,
                 amount=amount,
                 status="paid" if is_paid else "unpaid",
-                paid_at=datetime.utcnow() - timedelta(days=10) if is_paid else None,
+                paid_at=datetime.utcnow() - timedelta(days=10 + (len(periods) - periods.index(period))) if is_paid else None,
             )
             db.session.add(bill)
             db.session.flush()

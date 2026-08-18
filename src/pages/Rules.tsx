@@ -51,12 +51,14 @@ export default function Rules() {
     const breakdown: BillBreakdown[] = [];
 
     for (const rule of rules) {
-      if (remaining <= 0) break;
       const tierMin = rule.min_usage;
       const tierMax = rule.max_usage;
       const tierCapacity = tierMax !== null ? tierMax - tierMin : remaining;
-      const usedInTier = Math.min(remaining, tierCapacity);
-      if (usedInTier <= 0) continue;
+      let usedInTier = 0;
+      if (remaining > 0) {
+        usedInTier = Math.min(remaining, tierCapacity);
+        if (usedInTier < 0) usedInTier = 0;
+      }
       const subtotal = usedInTier * rule.unit_price;
       total += subtotal;
       remaining -= usedInTier;

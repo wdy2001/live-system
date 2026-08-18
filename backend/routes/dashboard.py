@@ -17,17 +17,20 @@ def overview():
     household_ids = [h.id for h in households]
 
     unpaid_total = 0.0
+    unpaid_count = 0
     this_month_usage = {"electricity": 0.0, "water": 0.0, "gas": 0.0}
     repair_processing = 0
+    repair_stats = {"pending": 0, "processing": 0, "resolved": 0}
     monthly_usage = []
+    trends = []
 
     if household_ids:
-        unpaid_rows = (
-            Bill.query.filter(Bill.household_id.in_(household_ids), Bill.status == "unpaid")
-            .with_entities(func.sum(Bill.amount))
-            .first()
+        unpaid_query = Bill.query.filter(
+            Bill.household_id.in_(household_ids), Bill.status == "unpaid"
         )
+        unpaid_rows = unpaid_query.with_entities(func.sum(Bill.amount)).first()
         unpaid_total = float(unpaid_rows[0] or 0)
+        unpaid_count = unpaid_query.count()
 
         all_bills = Bill.query.filter(Bill.household_id.in_(household_ids)).all()
         period_usage = {}
@@ -42,7 +45,11 @@ def overview():
             latest_period = sorted_periods[0]
             this_month_usage = period_usage[latest_period]
 
-        repair_processing = RepairRequest.query.filter_by(user_id=uid, status="processing").count()
+        for rs in repair_stats.keys():
+            repair_stats[rs] = RepairRequest.query.filter_by(
+                user_id=uid, status=rs
+            ).count()
+        repair_processing = repair_stats["processing"]
 
         if sorted_periods:
             latest_period = sorted_periods[0]
@@ -59,10 +66,26 @@ def overview():
             period = f"{y:04d}-{m:02d}"
             usage = period_usage.get(period, {"electricity": 0.0, "water": 0.0, "gas": 0.0})
             monthly_usage.append({"period": period, **usage})
+            trends.append({"period": period, "usage": usage})
+
+    households_list = [
+        {
+            "id": h.id,
+            "household_no": h.household_no,
+            "address": h.address,
+            "user_id": h.user_id,
+            "created_at": h.created_at.isoformat() if h.created_at else None,
+        }
+        for h in households
+    ]
 
     return jsonify(
         unpaid_total=unpaid_total,
+        unpaid_count=unpaid_count,
         this_month_usage=this_month_usage,
         repair_processing=repair_processing,
+        repair_stats=repair_stats,
         monthly_usage=monthly_usage,
+        trends=trends,
+        households=households_list,
     )

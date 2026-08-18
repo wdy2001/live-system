@@ -102,8 +102,10 @@ export interface DashboardResponse {
   unpaid_total: number;
   unpaid_count: number;
   this_month_usage: Record<UtilityType, number>;
+  repair_processing: number;
   repair_stats: Record<"pending" | "processing" | "resolved", number>;
   trends: Array<{ period: string; usage: Record<UtilityType, number> }>;
+  monthly_usage: Array<{ period: string; electricity: number; water: number; gas: number }>;
   households: Household[];
 }
 
