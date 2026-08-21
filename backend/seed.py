@@ -44,13 +44,17 @@ def seed():
 
         # ---------- 户号与表计 ----------
         h1 = Household(user_id=demo.id, household_no="HH20240001", address="阳光花园 3 栋 2 单元 501")
-        db.session.add(h1)
+        h2 = Household(user_id=admin.id, household_no="HH20240002", address="翠湖苑 1 栋 1 单元 101")
+        db.session.add_all([h1, h2])
         db.session.commit()
 
         meters = [
             Meter(household_id=h1.id, type="electricity", meter_no="EL-0001", current_reading=3120),
             Meter(household_id=h1.id, type="water", meter_no="WT-0001", current_reading=486),
             Meter(household_id=h1.id, type="gas", meter_no="GS-0001", current_reading=215),
+            Meter(household_id=h2.id, type="electricity", meter_no="EL-0002", current_reading=5400),
+            Meter(household_id=h2.id, type="water", meter_no="WT-0002", current_reading=920),
+            Meter(household_id=h2.id, type="gas", meter_no="GS-0002", current_reading=380),
         ]
         db.session.add_all(meters)
         db.session.commit()
@@ -95,7 +99,8 @@ def seed():
             "water":       [12,  13,  13,  10,  8,  12],
             "gas":         [15,  13,  12,  10,  13,  13],
         }
-        meter_map = {m.type: m for m in meters}
+        h1_meters = [m for m in meters if m.household_id == h1.id]
+        meter_map = {m.type: m for m in h1_meters}
         bill_rows = []
         for btype in ("electricity", "water", "gas"):
             increments = type_monthly_increments[btype]

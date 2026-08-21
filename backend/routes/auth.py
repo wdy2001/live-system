@@ -99,7 +99,7 @@ def register():
     db.session.commit()
 
     token = create_access_token(identity=str(user.id))
-    return jsonify(access_token=token, user=user.to_dict()), 201
+    return jsonify(access_token=token, token=token, user=user.to_dict()), 201
 
 
 @auth_bp.post("/login")
@@ -113,7 +113,7 @@ def login():
         return jsonify(msg="用户名或密码错误"), 401
 
     token = create_access_token(identity=str(user.id))
-    return jsonify(access_token=token, user=user.to_dict())
+    return jsonify(access_token=token, token=token, user=user.to_dict())
 
 
 @auth_bp.get("/me")

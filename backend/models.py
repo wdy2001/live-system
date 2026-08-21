@@ -44,14 +44,18 @@ class Household(db.Model):
     meters = db.relationship("Meter", backref="household", lazy=True)
     bills = db.relationship("Bill", backref="household", lazy=True)
 
-    def to_dict(self):
-        return {
+    def to_dict(self, include_meters=True):
+        d = {
             "id": self.id,
             "household_no": self.household_no,
             "address": self.address,
             "user_id": self.user_id,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
+        if include_meters:
+            meters_sorted = sorted(self.meters, key=lambda m: m.type)
+            d["meters"] = [m.to_dict() for m in meters_sorted]
+        return d
 
 
 class Meter(db.Model):
